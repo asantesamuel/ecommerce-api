@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Environment secrets — never commit
+.env
+
+# TypeORM
+src/migrations/*.js
+
+# tsoa generated (optional: some teams commit these)
+# src/routes.ts
+# src/public/swagger.json
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/settings.json
+.idea/

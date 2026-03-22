@@ -1,0 +1,30 @@
+{
+	"openapi": "3.0.0",
+	"components": {
+		"examples": {},
+		"headers": {},
+		"parameters": {},
+		"requestBodies": {},
+		"responses": {},
+		"schemas": {},
+		"securitySchemes": {
+			"jwt": {
+				"type": "http",
+				"scheme": "bearer",
+				"bearerFormat": "JWT"
+			}
+		}
+	},
+	"info": {
+		"title": "ecommerce-api",
+		"version": "1.0.0",
+		"description": "E-Commerce REST API — Node.js, Express, TypeScript, TypeORM, PostgreSQL",
+		"contact": {}
+	},
+	"paths": {},
+	"servers": [
+		{
+			"url": "/"
+		}
+	]
+}

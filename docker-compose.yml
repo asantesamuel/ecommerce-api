@@ -1,0 +1,41 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: ecommerce_db
+    restart: unless-stopped
+    command: postgres -c password_encryption=md5
+    environment:
+      POSTGRES_USER: ecommerce_user
+      POSTGRES_PASSWORD: ecommerce_pass
+      POSTGRES_DB: ecommerce_dev
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  postgres_test:
+    image: postgres:16-alpine
+    container_name: ecommerce_db_test
+    restart: unless-stopped
+    command: postgres -c password_encryption=md5
+    environment:
+      POSTGRES_USER: ecommerce_user
+      POSTGRES_PASSWORD: ecommerce_pass
+      POSTGRES_DB: ecommerce_test
+    ports:
+      - '5433:5432'
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: ecommerce_pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - '8080:80'
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
