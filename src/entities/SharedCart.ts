@@ -1,14 +1,30 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
+import { Cart } from './Cart';
+import { User } from './User';
 
-// TODO: Define @Entity() columns for SharedCart
-@Entity()
+@Entity('shared_carts')
 export class SharedCart {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @CreateDateColumn()
-  createdAt!: Date;
+  @ManyToOne(() => Cart, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'cart_id' })
+  cart!: Cart;
 
-  @UpdateDateColumn()
-  updatedAt!: Date;
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'shared_by' })
+  sharedBy!: User;
+
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'shared_with' })
+  sharedWith!: User;
+
+  @CreateDateColumn()
+  sharedAt!: Date;
 }

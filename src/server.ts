@@ -1,9 +1,11 @@
 import 'reflect-metadata';
+import * as dotenv from 'dotenv';
+dotenv.config();
+
 import { createApp } from './app';
 import { AppDataSource } from './config/database';
-import { env } from './config/env';
 
-const PORT = Number(env.PORT) || 3000;
+const PORT = process.env.PORT || 3000;
 
 async function bootstrap() {
   await AppDataSource.initialize();
@@ -17,6 +19,6 @@ async function bootstrap() {
 }
 
 bootstrap().catch((err) => {
-  console.error('❌ Failed to start server:', err);
+  console.error('❌ Failed to start:', err);
   process.exit(1);
 });

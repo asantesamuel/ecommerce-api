@@ -8,7 +8,7 @@
     "info": {
       "title": "E-Commerce API",
       "version": "1.0.0",
-      "description": "Node.js e-commerce REST API with JWT auth, Stripe payments, and vendor onboarding"
+      "description": "E-Commerce REST API with JWT auth, Stripe payments, and vendor onboarding"
     },
     "securityDefinitions": {
       "jwt": {
@@ -20,6 +20,6 @@
   },
   "routes": {
     "routesDir": "src",
-    "authenticationModule": "src/middlewares/authenticate.ts"
+    "authenticationModule": "src/middlewares/authenticate"
   }
 }

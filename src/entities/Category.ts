@@ -1,14 +1,30 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  OneToMany,
+  JoinColumn,
+} from 'typeorm';
 
-// TODO: Define @Entity() columns for Category
-@Entity()
+@Entity('categories')
 export class Category {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @CreateDateColumn()
-  createdAt!: Date;
+  @Column()
+  name!: string;
 
-  @UpdateDateColumn()
-  updatedAt!: Date;
+  @Column({ unique: true })
+  slug!: string;
+
+  @ManyToOne(() => Category, (category) => category.children, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'parent_id' })
+  parent!: Category | null;
+
+  @OneToMany(() => Category, (category) => category.parent)
+  children!: Category[];
 }
