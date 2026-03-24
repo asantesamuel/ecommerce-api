@@ -20,6 +20,10 @@
   },
   "routes": {
     "routesDir": "src",
-    "authenticationModule": "src/middlewares/authenticate"
-  }
+    "authenticationModule": "src/middlewares/authenticate",
+    "iocModule": null,
+    "middleware": "express",
+    "bodyCoercion": true
+  },
+  "validator": "tsoa-validator"
 }

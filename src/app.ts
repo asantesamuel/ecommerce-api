@@ -7,6 +7,7 @@ import swaggerUi from 'swagger-ui-express';
 import path from 'path';
 import { RegisterRoutes } from './routes';
 import { errorHandler } from './middlewares/errorHandler';
+import { authRateLimiter, loginRateLimiter } from './middlewares/rateLimiter';
 
 export function createApp(): Express {
   const app = express();
@@ -15,14 +16,15 @@ export function createApp(): Express {
   app.use(cors({ origin: process.env.FRONTEND_URL || '*' }));
   app.use(morgan('dev'));
 
-  // Raw body must come before express.json for Stripe webhooks
-  app.use(
-    '/payments/webhook',
-    express.raw({ type: 'application/json' })
-  );
+  // Raw body for Stripe webhooks — must come before express.json
+  app.use('/payments/webhook', express.raw({ type: 'application/json' }));
 
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
+
+  // Rate limiters on auth routes
+  app.use('/auth', authRateLimiter);
+  app.use('/auth/login', loginRateLimiter);
 
   // Swagger UI
   const swaggerDocument = require(

@@ -35,23 +35,40 @@ const expressAuthenticationRecasted = expressAuthentication as (req: ExRequest, 
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
 const models: TsoaRoute.Models = {
+    "UserResponseDto": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"string","required":true},
+            "email": {"dataType":"string","required":true},
+            "firstName": {"dataType":"string","required":true},
+            "lastName": {"dataType":"string","required":true},
+            "role": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "AuthResponseDto": {
         "dataType": "refObject",
         "properties": {
             "accessToken": {"dataType":"string","required":true},
             "refreshToken": {"dataType":"string","required":true},
-            "user": {"dataType":"nestedObjectLiteral","nestedProperties":{"role":{"dataType":"string","required":true},"lastName":{"dataType":"string","required":true},"firstName":{"dataType":"string","required":true},"email":{"dataType":"string","required":true},"id":{"dataType":"string","required":true}},"required":true},
+            "user": {"ref":"UserResponseDto","required":true},
         },
         "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "StrongPassword": {
+        "dataType": "refAlias",
+        "type": {"dataType":"string","validators":{"minLength":{"value":8},"maxLength":{"value":64},"pattern":{"value":"^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&^#])[A-Za-z\\d@$!%*?&^#]{8,}$"}}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "RegisterDto": {
         "dataType": "refObject",
         "properties": {
             "email": {"dataType":"string","required":true},
-            "password": {"dataType":"string","required":true},
-            "firstName": {"dataType":"string","required":true},
-            "lastName": {"dataType":"string","required":true},
+            "password": {"ref":"StrongPassword","required":true},
+            "firstName": {"dataType":"string","required":true,"validators":{"minLength":{"value":2},"maxLength":{"value":50},"pattern":{"value":"^[a-zA-Z\\s'-]+$"}}},
+            "lastName": {"dataType":"string","required":true,"validators":{"minLength":{"value":2},"maxLength":{"value":50},"pattern":{"value":"^[a-zA-Z\\s'-]+$"}}},
         },
         "additionalProperties": false,
     },
@@ -60,7 +77,7 @@ const models: TsoaRoute.Models = {
         "dataType": "refObject",
         "properties": {
             "email": {"dataType":"string","required":true},
-            "password": {"dataType":"string","required":true},
+            "password": {"dataType":"string","required":true,"validators":{"minLength":{"value":1}}},
         },
         "additionalProperties": false,
     },
@@ -68,7 +85,7 @@ const models: TsoaRoute.Models = {
     "RefreshTokenDto": {
         "dataType": "refObject",
         "properties": {
-            "refreshToken": {"dataType":"string","required":true},
+            "refreshToken": {"dataType":"string","required":true,"validators":{"minLength":{"value":1}}},
         },
         "additionalProperties": false,
     },

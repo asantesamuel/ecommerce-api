@@ -1,51 +1,65 @@
-// TODO: define request/response DTOs for auth
-// Use class-validator decorators for tsoa validation
-import { IsEmail, IsString, MinLength, IsNotEmpty } from 'class-validator';
+/**
+ * @minLength 2
+ * @maxLength 50
+ * @pattern ^[a-zA-Z\s'-]+$
+ */
+export type PersonName = string;
 
-export class RegisterDto {
-  @IsEmail()
-  email!: string;
+/**
+ * @minLength 8
+ * @maxLength 64
+ * @pattern ^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&^#])[A-Za-z\d@$!%*?&^#]{8,}$
+ */
+export type StrongPassword = string;
 
-  @IsString()
-  @MinLength(8, { message: 'Password must be at least 8 characters' })
-  password!: string;
+export interface RegisterDto {
+  /** @format email */
+  email: string;
 
-  @IsString()
-  @IsNotEmpty()
-  firstName!: string;
+  password: StrongPassword;
 
-  @IsString()
-  @IsNotEmpty()
-  lastName!: string;
+  /**
+   * @minLength 2
+   * @maxLength 50
+   * @pattern ^[a-zA-Z\s'-]+$
+   */
+  firstName: string;
+
+  /**
+   * @minLength 2
+   * @maxLength 50
+   * @pattern ^[a-zA-Z\s'-]+$
+   */
+  lastName: string;
 }
 
-export class LoginDto {
-  @IsEmail()
-  email!: string;
+export interface LoginDto {
+  /** @format email */
+  email: string;
 
-  @IsString()
-  @IsNotEmpty()
-  password!: string;
+  /** @minLength 1 */
+  password: string;
 }
 
-export class RefreshTokenDto {
-  @IsString()
-  @IsNotEmpty()
-  refreshToken!: string;
+export interface RefreshTokenDto {
+  /** @minLength 1 */
+  refreshToken: string;
 }
 
-export class AuthResponseDto {
-  accessToken!: string;
-  refreshToken!: string;
-  user!: {
-    id: string;
-    email: string;
-    firstName: string;
-    lastName: string;
-    role: string;
-  };
+export interface UserResponseDto {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: string;
 }
 
-export class MessageResponseDto {
-  message!: string;
+export interface AuthResponseDto {
+  accessToken: string;
+  refreshToken: string;
+  user: UserResponseDto;
+}
+
+export interface MessageResponseDto {
+  message: string;
 }
