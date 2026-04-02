@@ -7,6 +7,451 @@
 		"requestBodies": {},
 		"responses": {},
 		"schemas": {
+			"ProductResponseDto": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"slug": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					},
+					"price": {
+						"type": "number",
+						"format": "double"
+					},
+					"stockQuantity": {
+						"type": "number",
+						"format": "double"
+					},
+					"imageUrls": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"approvalStatus": {
+						"type": "string"
+					},
+					"isActive": {
+						"type": "boolean"
+					},
+					"category": {
+						"properties": {
+							"name": {
+								"type": "string"
+							},
+							"id": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"name",
+							"id"
+						],
+						"type": "object",
+						"nullable": true
+					},
+					"vendor": {
+						"properties": {
+							"businessName": {
+								"type": "string"
+							},
+							"id": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"businessName",
+							"id"
+						],
+						"type": "object",
+						"nullable": true
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"updatedAt": {
+						"type": "string",
+						"format": "date-time"
+					}
+				},
+				"required": [
+					"id",
+					"name",
+					"slug",
+					"description",
+					"price",
+					"stockQuantity",
+					"imageUrls",
+					"approvalStatus",
+					"isActive",
+					"category",
+					"vendor",
+					"createdAt",
+					"updatedAt"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"ProductListResponseDto": {
+				"properties": {
+					"data": {
+						"items": {
+							"$ref": "#/components/schemas/ProductResponseDto"
+						},
+						"type": "array"
+					},
+					"total": {
+						"type": "number",
+						"format": "double"
+					},
+					"page": {
+						"type": "number",
+						"format": "double"
+					},
+					"limit": {
+						"type": "number",
+						"format": "double"
+					},
+					"totalPages": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"data",
+					"total",
+					"page",
+					"limit",
+					"totalPages"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"CreateProductDto": {
+				"properties": {
+					"name": {
+						"type": "string",
+						"minLength": 2,
+						"maxLength": 200
+					},
+					"slug": {
+						"type": "string",
+						"minLength": 2,
+						"maxLength": 200,
+						"pattern": "^[a-z0-9-]+$"
+					},
+					"description": {
+						"type": "string"
+					},
+					"price": {
+						"type": "number",
+						"format": "double",
+						"minimum": 0
+					},
+					"stockQuantity": {
+						"type": "integer",
+						"format": "int32",
+						"minimum": 0
+					},
+					"categoryId": {
+						"type": "string"
+					},
+					"imageUrls": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"name",
+					"slug",
+					"price",
+					"stockQuantity"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"UpdateProductDto": {
+				"properties": {
+					"name": {
+						"type": "string",
+						"minLength": 2,
+						"maxLength": 200
+					},
+					"slug": {
+						"type": "string",
+						"minLength": 2,
+						"maxLength": 200,
+						"pattern": "^[a-z0-9-]+$"
+					},
+					"description": {
+						"type": "string"
+					},
+					"price": {
+						"type": "number",
+						"format": "double",
+						"minimum": 0
+					},
+					"stockQuantity": {
+						"type": "integer",
+						"format": "int32",
+						"minimum": 0
+					},
+					"categoryId": {
+						"type": "string"
+					},
+					"imageUrls": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"isActive": {
+						"type": "boolean"
+					}
+				},
+				"type": "object",
+				"additionalProperties": false
+			},
+			"CategoryResponseDto": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"slug": {
+						"type": "string"
+					},
+					"parent": {
+						"properties": {
+							"name": {
+								"type": "string"
+							},
+							"id": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"name",
+							"id"
+						],
+						"type": "object",
+						"nullable": true
+					},
+					"children": {
+						"items": {
+							"properties": {
+								"name": {
+									"type": "string"
+								},
+								"id": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"name",
+								"id"
+							],
+							"type": "object"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"id",
+					"name",
+					"slug",
+					"parent",
+					"children"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"CreateCategoryDto": {
+				"properties": {
+					"name": {
+						"type": "string",
+						"minLength": 2,
+						"maxLength": 100
+					},
+					"slug": {
+						"type": "string",
+						"minLength": 2,
+						"maxLength": 100,
+						"pattern": "^[a-z0-9-]+$"
+					},
+					"parentId": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"name",
+					"slug"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"UpdateCategoryDto": {
+				"properties": {
+					"name": {
+						"type": "string",
+						"minLength": 2,
+						"maxLength": 100
+					},
+					"slug": {
+						"type": "string",
+						"minLength": 2,
+						"maxLength": 100,
+						"pattern": "^[a-z0-9-]+$"
+					},
+					"parentId": {
+						"type": "string"
+					}
+				},
+				"type": "object",
+				"additionalProperties": false
+			},
+			"CartItemResponseDto": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"product": {
+						"properties": {
+							"stockQuantity": {
+								"type": "number",
+								"format": "double"
+							},
+							"imageUrls": {
+								"items": {
+									"type": "string"
+								},
+								"type": "array"
+							},
+							"slug": {
+								"type": "string"
+							},
+							"name": {
+								"type": "string"
+							},
+							"id": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"stockQuantity",
+							"imageUrls",
+							"slug",
+							"name",
+							"id"
+						],
+						"type": "object"
+					},
+					"quantity": {
+						"type": "number",
+						"format": "double"
+					},
+					"unitPrice": {
+						"type": "number",
+						"format": "double"
+					},
+					"lineTotal": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"id",
+					"product",
+					"quantity",
+					"unitPrice",
+					"lineTotal"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"CartResponseDto": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"items": {
+						"items": {
+							"$ref": "#/components/schemas/CartItemResponseDto"
+						},
+						"type": "array"
+					},
+					"itemCount": {
+						"type": "number",
+						"format": "double"
+					},
+					"subtotal": {
+						"type": "number",
+						"format": "double"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"updatedAt": {
+						"type": "string",
+						"format": "date-time"
+					}
+				},
+				"required": [
+					"id",
+					"items",
+					"itemCount",
+					"subtotal",
+					"createdAt",
+					"updatedAt"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"AddCartItemDto": {
+				"properties": {
+					"productId": {
+						"type": "string"
+					},
+					"quantity": {
+						"type": "integer",
+						"format": "int32",
+						"minimum": 1
+					}
+				},
+				"required": [
+					"productId",
+					"quantity"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"UpdateCartItemDto": {
+				"properties": {
+					"quantity": {
+						"type": "integer",
+						"format": "int32",
+						"minimum": 1
+					}
+				},
+				"required": [
+					"quantity"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
 			"UserResponseDto": {
 				"properties": {
 					"id": {
@@ -139,6 +584,647 @@
 		"contact": {}
 	},
 	"paths": {
+		"/products": {
+			"get": {
+				"operationId": "GetAll",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ProductListResponseDto"
+								}
+							}
+						}
+					}
+				},
+				"description": "Browse all active approved products with optional search and filters",
+				"tags": [
+					"Products"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "page",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"in": "query",
+						"name": "limit",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"in": "query",
+						"name": "search",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "categoryId",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "minPrice",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"in": "query",
+						"name": "maxPrice",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
+			},
+			"post": {
+				"operationId": "Create",
+				"responses": {
+					"201": {
+						"description": "Created",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ProductResponseDto"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "Vendor account not approved"
+					},
+					"409": {
+						"description": "Slug already exists"
+					}
+				},
+				"description": "Create a new product listing — vendor only",
+				"tags": [
+					"Products"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CreateProductDto"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/products/{id}": {
+			"get": {
+				"operationId": "GetOne",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ProductResponseDto"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Product not found"
+					}
+				},
+				"description": "Get a single product by ID",
+				"tags": [
+					"Products"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"put": {
+				"operationId": "Update",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ProductResponseDto"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "Not your product"
+					},
+					"404": {
+						"description": "Product not found"
+					}
+				},
+				"description": "Update a product — vendor only, must own the product",
+				"tags": [
+					"Products"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/UpdateProductDto"
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "Remove",
+				"responses": {
+					"204": {
+						"description": "Deleted"
+					},
+					"403": {
+						"description": "Not your product"
+					},
+					"404": {
+						"description": "Product not found"
+					}
+				},
+				"description": "Soft-delete a product — vendor only, must own the product",
+				"tags": [
+					"Products"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/products/vendor/my-products": {
+			"get": {
+				"operationId": "GetVendorProducts",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ProductListResponseDto"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get all products belonging to the authenticated vendor",
+				"tags": [
+					"Products"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "page",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"in": "query",
+						"name": "limit",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
+			}
+		},
+		"/categories": {
+			"get": {
+				"operationId": "GetAll",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/CategoryResponseDto"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get all categories",
+				"tags": [
+					"Categories"
+				],
+				"security": [],
+				"parameters": []
+			},
+			"post": {
+				"operationId": "Create",
+				"responses": {
+					"201": {
+						"description": "Created",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/CategoryResponseDto"
+								}
+							}
+						}
+					},
+					"409": {
+						"description": "Slug already exists"
+					}
+				},
+				"description": "Create a new category — admin only",
+				"tags": [
+					"Categories"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CreateCategoryDto"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/categories/{id}": {
+			"get": {
+				"operationId": "GetOne",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/CategoryResponseDto"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Category not found"
+					}
+				},
+				"description": "Get a single category by ID",
+				"tags": [
+					"Categories"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"put": {
+				"operationId": "Update",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/CategoryResponseDto"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Category not found"
+					}
+				},
+				"description": "Update a category — admin only",
+				"tags": [
+					"Categories"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/UpdateCategoryDto"
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "Remove",
+				"responses": {
+					"204": {
+						"description": "Deleted"
+					},
+					"404": {
+						"description": "Category not found"
+					}
+				},
+				"description": "Delete a category — admin only",
+				"tags": [
+					"Categories"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/cart": {
+			"get": {
+				"operationId": "GetCart",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/CartResponseDto"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get the current user's cart.\nCreates an empty cart automatically if none exists.",
+				"tags": [
+					"Cart"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": []
+			},
+			"delete": {
+				"operationId": "ClearCart",
+				"responses": {
+					"200": {
+						"description": "Cart cleared",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/CartResponseDto"
+								}
+							}
+						}
+					}
+				},
+				"description": "Remove all items from the cart",
+				"tags": [
+					"Cart"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": []
+			}
+		},
+		"/cart/items": {
+			"post": {
+				"operationId": "AddItem",
+				"responses": {
+					"201": {
+						"description": "Item added",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/CartResponseDto"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Insufficient stock"
+					},
+					"404": {
+						"description": "Product not found"
+					}
+				},
+				"description": "Add a product to the cart.\nIf the product is already in the cart the quantities are merged.\nThe price is snapshotted at the time of adding.",
+				"tags": [
+					"Cart"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/AddCartItemDto"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/cart/items/{itemId}": {
+			"put": {
+				"operationId": "UpdateItem",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/CartResponseDto"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Insufficient stock"
+					},
+					"404": {
+						"description": "Cart item not found"
+					}
+				},
+				"description": "Update the quantity of a specific cart item",
+				"tags": [
+					"Cart"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "itemId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/UpdateCartItemDto"
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "RemoveItem",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/CartResponseDto"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Cart item not found"
+					}
+				},
+				"description": "Remove a specific item from the cart",
+				"tags": [
+					"Cart"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "itemId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
 		"/auth/register": {
 			"post": {
 				"operationId": "Register",
