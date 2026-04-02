@@ -6,7 +6,6 @@ export const authRateLimiter = rateLimit({
   max: 30,
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req) => req.ip || 'unknown',
   message: {
     message: 'Too many requests from this IP. Please try again in 15 minutes.',
   },
@@ -18,7 +17,6 @@ export const loginRateLimiter = rateLimit({
   max: 10,
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req) => req.ip || 'unknown',
   message: {
     message: 'Too many login attempts from this IP. Please try again in 15 minutes.',
   },

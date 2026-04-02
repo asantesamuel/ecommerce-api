@@ -4,9 +4,11 @@ dotenv.config();
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
-  url: process.env.DATABASE_URL,
+  url: process.env.NODE_ENV === 'test' 
+    ? process.env.DATABASE_URL_TEST 
+    : process.env.DATABASE_URL,
   entities: [__dirname + '/../entities/*.{ts,js}'],
   migrations: [__dirname + '/../migrations/*.{ts,js}'],
-  synchronize: false,
+  synchronize: process.env.NODE_ENV === 'test', // Sync automatically during tests
   logging: process.env.NODE_ENV === 'development',
 });

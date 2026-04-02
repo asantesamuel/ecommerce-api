@@ -6,6 +6,7 @@ const config: Config = {
   roots: ['<rootDir>/src/tests'],
   testMatch: ['**/*.test.ts'],
   collectCoverageFrom: ['src/**/*.ts', '!src/routes.ts', '!src/migrations/**'],
+  setupFilesAfterEnv: ['<rootDir>/src/tests/setup.ts'],
 };
 
 export default config;
