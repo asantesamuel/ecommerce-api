@@ -1,19 +1,23 @@
-import { Route, Tags, Post, Request, Response, SuccessResponse, Controller } from 'tsoa';
+import {
+  Controller, Route, Tags, Post,
+  Request, Response, SuccessResponse,
+} from 'tsoa';
 import { Request as ExpressRequest } from 'express';
 import * as crypto                   from 'crypto';
 import * as dotenv                   from 'dotenv';
 import { OrdersService }             from '../orders/orders.service';
+import { VendorsService }            from '../vendors/vendors.service';
 dotenv.config();
 
 @Route('payments')
 @Tags('Payments')
 export class PaymentsController extends Controller {
-  private ordersService = new OrdersService();
+  private ordersService  = new OrdersService();
+  private vendorsService = new VendorsService();
 
   /**
-   * Paystack webhook endpoint.
-   * Paystack calls this automatically after every payment event.
-   * Must be publicly accessible — no JWT required.
+   * Paystack webhook — handles all payment events.
+   * No JWT required — Paystack calls this directly.
    */
   @Post('webhook')
   @SuccessResponse(200, 'OK')
@@ -22,8 +26,7 @@ export class PaymentsController extends Controller {
     const secret    = process.env.PAYSTACK_SECRET_KEY as string;
     const signature = req.headers['x-paystack-signature'] as string;
 
-    // Verify the webhook came from Paystack and not a third party
-    // Paystack signs every webhook with your secret key using HMAC SHA512
+    // Verify signature
     const hash = crypto
       .createHmac('sha512', secret)
       .update(JSON.stringify(req.body))
@@ -34,8 +37,28 @@ export class PaymentsController extends Controller {
       return;
     }
 
-    // Signature verified — process the event
-    await this.ordersService.handleWebhook(req.body);
+    const { event, data } = req.body;
+
+    if (event !== 'charge.success') {
+      this.setStatus(200);
+      return;
+    }
+
+    const metadata  = data.metadata || {};
+    const reference = data.reference;
+
+    // Route to the correct handler based on payment type
+    if (metadata.type === 'vendor_onboarding_fee') {
+      // Vendor onboarding fee payment
+      await this.vendorsService.confirmFeePayment(
+        reference,
+        String(data.id)
+      );
+    } else {
+      // Regular order payment
+      await this.ordersService.handleWebhook(req.body);
+    }
+
     this.setStatus(200);
   }
 }

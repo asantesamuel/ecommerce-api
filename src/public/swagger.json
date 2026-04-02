@@ -7,6 +7,506 @@
 		"requestBodies": {},
 		"responses": {},
 		"schemas": {
+			"VendorProfileResponseDto": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"businessName": {
+						"type": "string"
+					},
+					"registrationNumber": {
+						"type": "string"
+					},
+					"contactEmail": {
+						"type": "string"
+					},
+					"country": {
+						"type": "string"
+					},
+					"status": {
+						"type": "string"
+					},
+					"rejectionReason": {
+						"type": "string",
+						"nullable": true
+					},
+					"approvedAt": {
+						"type": "string",
+						"format": "date-time",
+						"nullable": true
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time"
+					}
+				},
+				"required": [
+					"id",
+					"businessName",
+					"registrationNumber",
+					"contactEmail",
+					"country",
+					"status",
+					"rejectionReason",
+					"approvedAt",
+					"createdAt"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"VendorOnboardingResponseDto": {
+				"properties": {
+					"vendor": {
+						"$ref": "#/components/schemas/VendorProfileResponseDto"
+					},
+					"fee": {
+						"properties": {
+							"reference": {
+								"type": "string"
+							},
+							"paymentUrl": {
+								"type": "string"
+							},
+							"status": {
+								"type": "string"
+							},
+							"currency": {
+								"type": "string"
+							},
+							"amount": {
+								"type": "number",
+								"format": "double"
+							}
+						},
+						"required": [
+							"reference",
+							"paymentUrl",
+							"status",
+							"currency",
+							"amount"
+						],
+						"type": "object"
+					}
+				},
+				"required": [
+					"vendor",
+					"fee"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"VendorApplyDto": {
+				"properties": {
+					"businessName": {
+						"type": "string",
+						"minLength": 2,
+						"maxLength": 200
+					},
+					"registrationNumber": {
+						"type": "string",
+						"minLength": 2,
+						"maxLength": 100
+					},
+					"contactEmail": {
+						"type": "string",
+						"format": "email"
+					},
+					"country": {
+						"type": "string",
+						"description": "ISO 3166-1 alpha-2 country code",
+						"minLength": 2,
+						"maxLength": 2,
+						"pattern": "^[A-Z]{2}$"
+					},
+					"currency": {
+						"type": "string",
+						"description": "Currency to pay the onboarding fee in",
+						"minLength": 3,
+						"maxLength": 3,
+						"pattern": "^[A-Z]{3}$"
+					},
+					"callbackUrl": {
+						"type": "string",
+						"description": "URL Paystack redirects to after fee payment"
+					}
+				},
+				"required": [
+					"businessName",
+					"registrationNumber",
+					"contactEmail",
+					"country",
+					"currency"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"VendorDocumentResponseDto": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"documentType": {
+						"type": "string"
+					},
+					"fileUrl": {
+						"type": "string"
+					},
+					"verificationStatus": {
+						"type": "string"
+					},
+					"uploadedAt": {
+						"type": "string",
+						"format": "date-time"
+					}
+				},
+				"required": [
+					"id",
+					"documentType",
+					"fileUrl",
+					"verificationStatus",
+					"uploadedAt"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"SubmitDocumentDto": {
+				"properties": {
+					"fileKey": {
+						"type": "string"
+					},
+					"documentType": {
+						"type": "string",
+						"enum": [
+							"business_registration",
+							"tax_certificate",
+							"id_proof",
+							"other"
+						]
+					}
+				},
+				"required": [
+					"fileKey",
+					"documentType"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"AdminVendorListResponseDto": {
+				"properties": {
+					"data": {
+						"items": {
+							"$ref": "#/components/schemas/VendorProfileResponseDto"
+						},
+						"type": "array"
+					},
+					"total": {
+						"type": "number",
+						"format": "double"
+					},
+					"page": {
+						"type": "number",
+						"format": "double"
+					},
+					"limit": {
+						"type": "number",
+						"format": "double"
+					},
+					"totalPages": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"data",
+					"total",
+					"page",
+					"limit",
+					"totalPages"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"ReviewVendorDto": {
+				"properties": {
+					"reason": {
+						"type": "string",
+						"minLength": 10,
+						"maxLength": 500
+					}
+				},
+				"type": "object",
+				"additionalProperties": false
+			},
+			"PresignUploadResponseDto": {
+				"properties": {
+					"uploadUrl": {
+						"type": "string"
+					},
+					"fileKey": {
+						"type": "string"
+					},
+					"expiresIn": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"uploadUrl",
+					"fileKey",
+					"expiresIn"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"PresignUploadDto": {
+				"properties": {
+					"filename": {
+						"type": "string",
+						"description": "Original filename including extension",
+						"minLength": 1,
+						"maxLength": 200
+					},
+					"contentType": {
+						"type": "string",
+						"description": "MIME type of the file",
+						"minLength": 1,
+						"maxLength": 100
+					},
+					"folder": {
+						"type": "string",
+						"enum": [
+							"products",
+							"documents",
+							"avatars"
+						],
+						"description": "Where the file will be used"
+					}
+				},
+				"required": [
+					"filename",
+					"contentType",
+					"folder"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"ConfirmUploadResponseDto": {
+				"properties": {
+					"fileKey": {
+						"type": "string"
+					},
+					"url": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"fileKey",
+					"url"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"ConfirmUploadDto": {
+				"properties": {
+					"fileKey": {
+						"type": "string"
+					},
+					"folder": {
+						"type": "string",
+						"enum": [
+							"products",
+							"documents",
+							"avatars"
+						]
+					}
+				},
+				"required": [
+					"fileKey",
+					"folder"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"FriendResponseDto": {
+				"properties": {
+					"friendshipId": {
+						"type": "string"
+					},
+					"user": {
+						"properties": {
+							"avatarUrl": {
+								"type": "string",
+								"nullable": true
+							},
+							"email": {
+								"type": "string"
+							},
+							"lastName": {
+								"type": "string"
+							},
+							"firstName": {
+								"type": "string"
+							},
+							"id": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"avatarUrl",
+							"email",
+							"lastName",
+							"firstName",
+							"id"
+						],
+						"type": "object"
+					},
+					"status": {
+						"type": "string"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time"
+					}
+				},
+				"required": [
+					"friendshipId",
+					"user",
+					"status",
+					"createdAt"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"SendFriendRequestDto": {
+				"properties": {
+					"addresseeId": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"addresseeId"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"RespondFriendRequestDto": {
+				"properties": {
+					"action": {
+						"type": "string",
+						"enum": [
+							"accept",
+							"decline",
+							"block"
+						]
+					}
+				},
+				"required": [
+					"action"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"SharedCartItemDto": {
+				"properties": {
+					"productName": {
+						"type": "string"
+					},
+					"quantity": {
+						"type": "number",
+						"format": "double"
+					},
+					"unitPrice": {
+						"type": "number",
+						"format": "double"
+					},
+					"lineTotal": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"productName",
+					"quantity",
+					"unitPrice",
+					"lineTotal"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"SharedCartResponseDto": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"sharedBy": {
+						"properties": {
+							"lastName": {
+								"type": "string"
+							},
+							"firstName": {
+								"type": "string"
+							},
+							"id": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"lastName",
+							"firstName",
+							"id"
+						],
+						"type": "object"
+					},
+					"cart": {
+						"properties": {
+							"subtotal": {
+								"type": "number",
+								"format": "double"
+							},
+							"items": {
+								"items": {
+									"$ref": "#/components/schemas/SharedCartItemDto"
+								},
+								"type": "array"
+							},
+							"id": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"subtotal",
+							"items",
+							"id"
+						],
+						"type": "object"
+					},
+					"sharedAt": {
+						"type": "string",
+						"format": "date-time"
+					}
+				},
+				"required": [
+					"id",
+					"sharedBy",
+					"cart",
+					"sharedAt"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"ShareCartDto": {
+				"properties": {
+					"friendId": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"friendId"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
 			"ProductResponseDto": {
 				"properties": {
 					"id": {
@@ -811,6 +1311,45 @@
 				],
 				"type": "object",
 				"additionalProperties": false
+			},
+			"UpdateUserStatusDto": {
+				"properties": {
+					"isActive": {
+						"type": "boolean"
+					},
+					"reason": {
+						"type": "string",
+						"minLength": 5,
+						"maxLength": 300
+					}
+				},
+				"required": [
+					"isActive"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"ModerateProductDto": {
+				"properties": {
+					"action": {
+						"type": "string",
+						"enum": [
+							"approve",
+							"reject",
+							"flag"
+						]
+					},
+					"reason": {
+						"type": "string",
+						"minLength": 5,
+						"maxLength": 300
+					}
+				},
+				"required": [
+					"action"
+				],
+				"type": "object",
+				"additionalProperties": false
 			}
 		},
 		"securitySchemes": {
@@ -828,6 +1367,691 @@
 		"contact": {}
 	},
 	"paths": {
+		"/vendors/apply": {
+			"post": {
+				"operationId": "Apply",
+				"responses": {
+					"201": {
+						"description": "Application submitted",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/VendorOnboardingResponseDto"
+								}
+							}
+						}
+					},
+					"409": {
+						"description": "Already has a vendor profile"
+					}
+				},
+				"description": "Apply to become a vendor.\nReturns a paymentUrl — redirect the user there to pay the onboarding fee.\nStatus moves from pending_payment → pending_review after fee is confirmed.",
+				"tags": [
+					"Vendors"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/VendorApplyDto"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/vendors/me": {
+			"get": {
+				"operationId": "GetMyProfile",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/VendorProfileResponseDto"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Vendor profile not found"
+					}
+				},
+				"description": "Get the authenticated vendor's profile and status",
+				"tags": [
+					"Vendors"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": []
+			}
+		},
+		"/vendors/documents": {
+			"post": {
+				"operationId": "SubmitDocument",
+				"responses": {
+					"201": {
+						"description": "Document submitted",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/VendorDocumentResponseDto"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Fee payment required first"
+					}
+				},
+				"description": "Submit a business document after paying the onboarding fee.\nUse POST /uploads/presign first to upload the file to S3,\nthen pass the returned fileKey here.",
+				"tags": [
+					"Vendors"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/SubmitDocumentDto"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/vendors/me/documents": {
+			"get": {
+				"operationId": "GetMyDocuments",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/VendorDocumentResponseDto"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get all documents submitted by the authenticated vendor",
+				"tags": [
+					"Vendors"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": []
+			}
+		},
+		"/vendors/admin/pending": {
+			"get": {
+				"operationId": "GetPendingVendors",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/AdminVendorListResponseDto"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "Admins only"
+					}
+				},
+				"description": "Admin: list all vendors with pending_review status",
+				"tags": [
+					"Vendors"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "page",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"in": "query",
+						"name": "limit",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
+			}
+		},
+		"/vendors/{vendorId}/documents": {
+			"get": {
+				"operationId": "GetVendorDocuments",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/VendorDocumentResponseDto"
+									},
+									"type": "array"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "Admins only"
+					}
+				},
+				"description": "Admin: view all documents submitted by a specific vendor",
+				"tags": [
+					"Vendors"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "vendorId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/vendors/{vendorId}/approve": {
+			"post": {
+				"operationId": "ApproveVendor",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/VendorProfileResponseDto"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid status transition"
+					},
+					"404": {
+						"description": "Vendor not found"
+					}
+				},
+				"description": "Admin: approve a vendor application",
+				"tags": [
+					"Vendors"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "vendorId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/vendors/{vendorId}/reject": {
+			"post": {
+				"operationId": "RejectVendor",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/VendorProfileResponseDto"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Reason required"
+					},
+					"404": {
+						"description": "Vendor not found"
+					}
+				},
+				"description": "Admin: reject a vendor application with a written reason",
+				"tags": [
+					"Vendors"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "vendorId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/ReviewVendorDto"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/vendors/{vendorId}/suspend": {
+			"post": {
+				"operationId": "SuspendVendor",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/VendorProfileResponseDto"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid status transition"
+					},
+					"404": {
+						"description": "Vendor not found"
+					}
+				},
+				"description": "Admin: suspend an approved vendor",
+				"tags": [
+					"Vendors"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "vendorId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/ReviewVendorDto"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/uploads/presign": {
+			"post": {
+				"operationId": "Presign",
+				"responses": {
+					"200": {
+						"description": "Pre-signed URL generated",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PresignUploadResponseDto"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "File type not allowed"
+					}
+				},
+				"description": "Step 1 of 2 — Request a pre-signed S3 upload URL.\nThe client then PUTs the file directly to S3 using this URL.\nThe file never passes through the API server.",
+				"tags": [
+					"Uploads"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/PresignUploadDto"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/uploads/confirm": {
+			"post": {
+				"operationId": "Confirm",
+				"responses": {
+					"200": {
+						"description": "Upload confirmed",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ConfirmUploadResponseDto"
+								}
+							}
+						}
+					}
+				},
+				"description": "Step 2 of 2 — Confirm the upload completed and get the final URL.\nCall this after successfully uploading to S3.",
+				"tags": [
+					"Uploads"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/ConfirmUploadDto"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/social/friends/request": {
+			"post": {
+				"operationId": "SendRequest",
+				"responses": {
+					"201": {
+						"description": "Request sent",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/FriendResponseDto"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Cannot request yourself"
+					},
+					"409": {
+						"description": "Friendship already exists"
+					}
+				},
+				"description": "Send a friend request to another user",
+				"tags": [
+					"Social"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/SendFriendRequestDto"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/social/friends/{friendshipId}/respond": {
+			"put": {
+				"operationId": "Respond",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/FriendResponseDto"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid action for current status"
+					},
+					"403": {
+						"description": "Not your request to respond to"
+					},
+					"404": {
+						"description": "Friend request not found"
+					}
+				},
+				"description": "Accept, decline, or block a friend request",
+				"tags": [
+					"Social"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "friendshipId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/RespondFriendRequestDto"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/social/friends": {
+			"get": {
+				"operationId": "GetFriends",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/FriendResponseDto"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get all accepted friends",
+				"tags": [
+					"Social"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": []
+			}
+		},
+		"/social/friends/requests": {
+			"get": {
+				"operationId": "GetPendingRequests",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/FriendResponseDto"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get all pending friend requests sent to you",
+				"tags": [
+					"Social"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": []
+			}
+		},
+		"/social/cart/share": {
+			"post": {
+				"operationId": "ShareCart",
+				"responses": {
+					"201": {
+						"description": "Cart shared",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/SharedCartResponseDto"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Cart is empty"
+					},
+					"403": {
+						"description": "Not friends with this user"
+					}
+				},
+				"description": "Share your cart with an accepted friend",
+				"tags": [
+					"Social"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/ShareCartDto"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/social/cart/shared-with-me": {
+			"get": {
+				"operationId": "GetSharedCarts",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/SharedCartResponseDto"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"description": "View all carts that friends have shared with you",
+				"tags": [
+					"Social"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": []
+			}
+		},
 		"/products": {
 			"get": {
 				"operationId": "GetAll",
@@ -1120,7 +2344,7 @@
 						"description": "Invalid signature"
 					}
 				},
-				"description": "Paystack webhook endpoint.\nPaystack calls this automatically after every payment event.\nMust be publicly accessible — no JWT required.",
+				"description": "Paystack webhook — handles all payment events.\nNo JWT required — Paystack calls this directly.",
 				"tags": [
 					"Payments"
 				],
@@ -1840,6 +3064,153 @@
 						"application/json": {
 							"schema": {
 								"$ref": "#/components/schemas/RefreshTokenDto"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/admin/users": {
+			"get": {
+				"operationId": "GetAllUsers",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					},
+					"403": {
+						"description": "Admins only"
+					}
+				},
+				"description": "Get all users — admin only",
+				"tags": [
+					"Admin"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "page",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"in": "query",
+						"name": "limit",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
+			}
+		},
+		"/admin/users/{userId}/status": {
+			"post": {
+				"operationId": "UpdateUserStatus",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					},
+					"403": {
+						"description": "Admins only"
+					},
+					"404": {
+						"description": "User not found"
+					}
+				},
+				"description": "Suspend or reactivate a user account — admin only",
+				"tags": [
+					"Admin"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "userId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/UpdateUserStatusDto"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/admin/products/{productId}/moderate": {
+			"post": {
+				"operationId": "ModerateProduct",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					},
+					"403": {
+						"description": "Admins only"
+					},
+					"404": {
+						"description": "Product not found"
+					}
+				},
+				"description": "Approve, reject, or flag a product listing — admin only",
+				"tags": [
+					"Admin"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "productId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/ModerateProductDto"
 							}
 						}
 					}
