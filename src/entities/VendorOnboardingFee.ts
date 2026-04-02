@@ -30,7 +30,7 @@ export class VendorOnboardingFee {
   currency!: string;
 
   @Column({ nullable: true })
-  stripePaymentIntentId!: string;
+  paystackReference!: string;
 
   @Column({ type: 'enum', enum: FeeStatus, default: FeeStatus.PENDING })
   status!: FeeStatus;
