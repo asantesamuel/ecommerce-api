@@ -9,6 +9,6 @@ export const AppDataSource = new DataSource({
     : process.env.DATABASE_URL,
   entities: [__dirname + '/../entities/*.{ts,js}'],
   migrations: [__dirname + '/../migrations/*.{ts,js}'],
-  synchronize: process.env.NODE_ENV === 'test', // Sync automatically during tests
+  synchronize: process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development', // Sync automatically during tests and dev
   logging: process.env.NODE_ENV === 'development',
 });

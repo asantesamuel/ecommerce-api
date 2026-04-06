@@ -63,3 +63,8 @@ export interface AuthResponseDto {
 export interface MessageResponseDto {
   message: string;
 }
+
+export interface RefreshResponseDto {
+  accessToken: string;
+  refreshToken: string;
+}

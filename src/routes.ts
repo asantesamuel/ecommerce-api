@@ -270,6 +270,21 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ShippingAddressDto": {
+        "dataType": "refObject",
+        "properties": {
+            "fullName": {"dataType":"string","required":true,"validators":{"minLength":{"value":2},"maxLength":{"value":100}}},
+            "addressLine1": {"dataType":"string","required":true,"validators":{"minLength":{"value":5},"maxLength":{"value":200}}},
+            "addressLine2": {"dataType":"string"},
+            "city": {"dataType":"string","required":true,"validators":{"minLength":{"value":2},"maxLength":{"value":100}}},
+            "state": {"dataType":"string","required":true,"validators":{"minLength":{"value":2},"maxLength":{"value":100}}},
+            "postalCode": {"dataType":"string","required":true,"validators":{"minLength":{"value":2},"maxLength":{"value":20}}},
+            "country": {"dataType":"string","required":true,"validators":{"minLength":{"value":2},"maxLength":{"value":2},"pattern":{"value":"^[A-Z]{2}$"}}},
+            "phone": {"dataType":"string","required":true,"validators":{"pattern":{"value":"^\\+?[1-9]\\d{1,14}$"}}},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "OrderItemResponseDto": {
         "dataType": "refObject",
         "properties": {
@@ -291,27 +306,12 @@ const models: TsoaRoute.Models = {
             "tax": {"dataType":"double","required":true},
             "total": {"dataType":"double","required":true},
             "currency": {"dataType":"string","required":true},
-            "shippingAddress": {"dataType":"object","required":true},
+            "shippingAddress": {"ref":"ShippingAddressDto","required":true},
             "paystackReference": {"dataType":"string","required":true},
             "paymentUrl": {"dataType":"string","required":true},
             "items": {"dataType":"array","array":{"dataType":"refObject","ref":"OrderItemResponseDto"},"required":true},
             "placedAt": {"dataType":"datetime","required":true},
             "updatedAt": {"dataType":"datetime","required":true},
-        },
-        "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "ShippingAddressDto": {
-        "dataType": "refObject",
-        "properties": {
-            "fullName": {"dataType":"string","required":true,"validators":{"minLength":{"value":2},"maxLength":{"value":100}}},
-            "addressLine1": {"dataType":"string","required":true,"validators":{"minLength":{"value":5},"maxLength":{"value":200}}},
-            "addressLine2": {"dataType":"string"},
-            "city": {"dataType":"string","required":true,"validators":{"minLength":{"value":2},"maxLength":{"value":100}}},
-            "state": {"dataType":"string","required":true,"validators":{"minLength":{"value":2},"maxLength":{"value":100}}},
-            "postalCode": {"dataType":"string","required":true,"validators":{"minLength":{"value":2},"maxLength":{"value":20}}},
-            "country": {"dataType":"string","required":true,"validators":{"minLength":{"value":2},"maxLength":{"value":2},"pattern":{"value":"^[A-Z]{2}$"}}},
-            "phone": {"dataType":"string","required":true,"validators":{"pattern":{"value":"^\\+?[1-9]\\d{1,14}$"}}},
         },
         "additionalProperties": false,
     },
@@ -469,10 +469,27 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "RefreshResponseDto": {
+        "dataType": "refObject",
+        "properties": {
+            "accessToken": {"dataType":"string","required":true},
+            "refreshToken": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "RefreshTokenDto": {
         "dataType": "refObject",
         "properties": {
             "refreshToken": {"dataType":"string","required":true,"validators":{"minLength":{"value":1}}},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "MessageResponseDto": {
+        "dataType": "refObject",
+        "properties": {
+            "message": {"dataType":"string","required":true},
         },
         "additionalProperties": false,
     },
@@ -1833,6 +1850,36 @@ export function RegisterRoutes(app: Router) {
 
               await templateService.apiHandler({
                 methodName: 'refresh',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: 200,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsAuthController_logout: Record<string, TsoaRoute.ParameterSchema> = {
+                body: {"in":"body","name":"body","required":true,"ref":"RefreshTokenDto"},
+        };
+        app.post('/auth/logout',
+            ...(fetchMiddlewares<RequestHandler>(AuthController)),
+            ...(fetchMiddlewares<RequestHandler>(AuthController.prototype.logout)),
+
+            async function AuthController_logout(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsAuthController_logout, request, response });
+
+                const controller = new AuthController();
+
+              await templateService.apiHandler({
+                methodName: 'logout',
                 controller,
                 response,
                 next,

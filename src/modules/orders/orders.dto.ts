@@ -54,7 +54,7 @@ export interface OrderResponseDto {
   tax:                  number;
   total:                number;
   currency:             string;
-  shippingAddress:      object;
+  shippingAddress:      ShippingAddressDto;
   paystackReference:    string;
   paymentUrl:           string; // redirect customer here to pay
   items:                OrderItemResponseDto[];

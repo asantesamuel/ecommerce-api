@@ -722,6 +722,59 @@
 				"type": "object",
 				"additionalProperties": false
 			},
+			"ShippingAddressDto": {
+				"properties": {
+					"fullName": {
+						"type": "string",
+						"minLength": 2,
+						"maxLength": 100
+					},
+					"addressLine1": {
+						"type": "string",
+						"minLength": 5,
+						"maxLength": 200
+					},
+					"addressLine2": {
+						"type": "string"
+					},
+					"city": {
+						"type": "string",
+						"minLength": 2,
+						"maxLength": 100
+					},
+					"state": {
+						"type": "string",
+						"minLength": 2,
+						"maxLength": 100
+					},
+					"postalCode": {
+						"type": "string",
+						"minLength": 2,
+						"maxLength": 20
+					},
+					"country": {
+						"type": "string",
+						"minLength": 2,
+						"maxLength": 2,
+						"pattern": "^[A-Z]{2}$"
+					},
+					"phone": {
+						"type": "string",
+						"pattern": "^\\+?[1-9]\\d{1,14}$"
+					}
+				},
+				"required": [
+					"fullName",
+					"addressLine1",
+					"city",
+					"state",
+					"postalCode",
+					"country",
+					"phone"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
 			"OrderItemResponseDto": {
 				"properties": {
 					"id": {
@@ -793,8 +846,7 @@
 						"type": "string"
 					},
 					"shippingAddress": {
-						"additionalProperties": false,
-						"type": "object"
+						"$ref": "#/components/schemas/ShippingAddressDto"
 					},
 					"paystackReference": {
 						"type": "string"
@@ -830,59 +882,6 @@
 					"items",
 					"placedAt",
 					"updatedAt"
-				],
-				"type": "object",
-				"additionalProperties": false
-			},
-			"ShippingAddressDto": {
-				"properties": {
-					"fullName": {
-						"type": "string",
-						"minLength": 2,
-						"maxLength": 100
-					},
-					"addressLine1": {
-						"type": "string",
-						"minLength": 5,
-						"maxLength": 200
-					},
-					"addressLine2": {
-						"type": "string"
-					},
-					"city": {
-						"type": "string",
-						"minLength": 2,
-						"maxLength": 100
-					},
-					"state": {
-						"type": "string",
-						"minLength": 2,
-						"maxLength": 100
-					},
-					"postalCode": {
-						"type": "string",
-						"minLength": 2,
-						"maxLength": 20
-					},
-					"country": {
-						"type": "string",
-						"minLength": 2,
-						"maxLength": 2,
-						"pattern": "^[A-Z]{2}$"
-					},
-					"phone": {
-						"type": "string",
-						"pattern": "^\\+?[1-9]\\d{1,14}$"
-					}
-				},
-				"required": [
-					"fullName",
-					"addressLine1",
-					"city",
-					"state",
-					"postalCode",
-					"country",
-					"phone"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -1299,6 +1298,22 @@
 				"type": "object",
 				"additionalProperties": false
 			},
+			"RefreshResponseDto": {
+				"properties": {
+					"accessToken": {
+						"type": "string"
+					},
+					"refreshToken": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"accessToken",
+					"refreshToken"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
 			"RefreshTokenDto": {
 				"properties": {
 					"refreshToken": {
@@ -1308,6 +1323,18 @@
 				},
 				"required": [
 					"refreshToken"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"MessageResponseDto": {
+				"properties": {
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"message"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -3035,15 +3062,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"properties": {
-										"accessToken": {
-											"type": "string"
-										}
-									},
-									"required": [
-										"accessToken"
-									],
-									"type": "object"
+									"$ref": "#/components/schemas/RefreshResponseDto"
 								}
 							}
 						}
@@ -3053,6 +3072,39 @@
 					}
 				},
 				"description": "Get a new access token using a refresh token",
+				"tags": [
+					"Auth"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/RefreshTokenDto"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/auth/logout": {
+			"post": {
+				"operationId": "Logout",
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/MessageResponseDto"
+								}
+							}
+						}
+					}
+				},
+				"description": "Log out a user by invalidating their refresh token",
 				"tags": [
 					"Auth"
 				],

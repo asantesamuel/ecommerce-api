@@ -14,6 +14,7 @@ import {
   RefreshTokenDto,
   AuthResponseDto,
   MessageResponseDto,
+  RefreshResponseDto,
 } from './auth.dto';
 
 @Route('auth')
@@ -50,7 +51,17 @@ export class AuthController extends Controller {
   @Response(401, 'Invalid or expired refresh token')
   async refresh(
     @Body() body: RefreshTokenDto
-  ): Promise<{ accessToken: string }> {
+  ): Promise<RefreshResponseDto> {
     return this.authService.refresh(body);
+  }
+
+  /**
+   * Log out a user by invalidating their refresh token
+   */
+  @Post('logout')
+  @SuccessResponse(200, 'OK')
+  async logout(@Body() body: RefreshTokenDto): Promise<MessageResponseDto> {
+    await this.authService.logout(body);
+    return { message: 'Logged out successfully' };
   }
 }
