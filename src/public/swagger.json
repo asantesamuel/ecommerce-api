@@ -1339,6 +1339,78 @@
 				"type": "object",
 				"additionalProperties": false
 			},
+			"AdminUserResponseDto": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"email": {
+						"type": "string"
+					},
+					"firstName": {
+						"type": "string"
+					},
+					"lastName": {
+						"type": "string"
+					},
+					"role": {
+						"type": "string"
+					},
+					"isActive": {
+						"type": "boolean"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time"
+					}
+				},
+				"required": [
+					"id",
+					"email",
+					"firstName",
+					"lastName",
+					"role",
+					"isActive",
+					"createdAt"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"AdminUserListResponseDto": {
+				"properties": {
+					"data": {
+						"items": {
+							"$ref": "#/components/schemas/AdminUserResponseDto"
+						},
+						"type": "array"
+					},
+					"total": {
+						"type": "number",
+						"format": "double"
+					},
+					"page": {
+						"type": "number",
+						"format": "double"
+					},
+					"limit": {
+						"type": "number",
+						"format": "double"
+					},
+					"totalPages": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"data",
+					"total",
+					"page",
+					"limit",
+					"totalPages"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
 			"UpdateUserStatusDto": {
 				"properties": {
 					"isActive": {
@@ -1352,6 +1424,159 @@
 				},
 				"required": [
 					"isActive"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"LowStockAlertDto": {
+				"properties": {
+					"productId": {
+						"type": "string"
+					},
+					"productName": {
+						"type": "string"
+					},
+					"slug": {
+						"type": "string"
+					},
+					"stockQuantity": {
+						"type": "number",
+						"format": "double"
+					},
+					"vendorName": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"productId",
+					"productName",
+					"slug",
+					"stockQuantity",
+					"vendorName"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"InventoryResponseDto": {
+				"properties": {
+					"alerts": {
+						"items": {
+							"$ref": "#/components/schemas/LowStockAlertDto"
+						},
+						"type": "array"
+					},
+					"totalAlerts": {
+						"type": "number",
+						"format": "double"
+					},
+					"threshold": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"alerts",
+					"totalAlerts",
+					"threshold"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"AnalyticsResponseDto": {
+				"properties": {
+					"overview": {
+						"properties": {
+							"totalRevenue": {
+								"type": "number",
+								"format": "double"
+							},
+							"totalOrders": {
+								"type": "number",
+								"format": "double"
+							},
+							"totalProducts": {
+								"type": "number",
+								"format": "double"
+							},
+							"totalVendors": {
+								"type": "number",
+								"format": "double"
+							},
+							"totalUsers": {
+								"type": "number",
+								"format": "double"
+							}
+						},
+						"required": [
+							"totalRevenue",
+							"totalOrders",
+							"totalProducts",
+							"totalVendors",
+							"totalUsers"
+						],
+						"type": "object"
+					},
+					"orders": {
+						"properties": {
+							"failed": {
+								"type": "number",
+								"format": "double"
+							},
+							"cancelled": {
+								"type": "number",
+								"format": "double"
+							},
+							"refunded": {
+								"type": "number",
+								"format": "double"
+							},
+							"delivered": {
+								"type": "number",
+								"format": "double"
+							},
+							"shipped": {
+								"type": "number",
+								"format": "double"
+							},
+							"processing": {
+								"type": "number",
+								"format": "double"
+							},
+							"paid": {
+								"type": "number",
+								"format": "double"
+							},
+							"pending": {
+								"type": "number",
+								"format": "double"
+							}
+						},
+						"required": [
+							"failed",
+							"cancelled",
+							"refunded",
+							"delivered",
+							"shipped",
+							"processing",
+							"paid",
+							"pending"
+						],
+						"type": "object"
+					},
+					"recentOrders": {
+						"items": {},
+						"type": "array"
+					},
+					"topProducts": {
+						"items": {},
+						"type": "array"
+					}
+				},
+				"required": [
+					"overview",
+					"orders",
+					"recentOrders",
+					"topProducts"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -3130,7 +3355,9 @@
 						"description": "Ok",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"$ref": "#/components/schemas/AdminUserListResponseDto"
+								}
 							}
 						}
 					},
@@ -3138,7 +3365,7 @@
 						"description": "Admins only"
 					}
 				},
-				"description": "Get all users — admin only",
+				"description": "Get all users with optional role and search filters — admin only",
 				"tags": [
 					"Admin"
 				],
@@ -3164,6 +3391,22 @@
 						"schema": {
 							"format": "double",
 							"type": "number"
+						}
+					},
+					{
+						"in": "query",
+						"name": "role",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "search",
+						"required": false,
+						"schema": {
+							"type": "string"
 						}
 					}
 				]
@@ -3217,6 +3460,131 @@
 						}
 					}
 				}
+			}
+		},
+		"/admin/orders": {
+			"get": {
+				"operationId": "GetAllOrders",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					},
+					"403": {
+						"description": "Admins only"
+					}
+				},
+				"description": "Get all orders platform-wide — admin only",
+				"tags": [
+					"Admin"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "page",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"in": "query",
+						"name": "limit",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"in": "query",
+						"name": "status",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/admin/inventory/low-stock": {
+			"get": {
+				"operationId": "GetLowStockAlerts",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/InventoryResponseDto"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "Admins only"
+					}
+				},
+				"description": "Get low stock alerts — products at or below the threshold — admin only",
+				"tags": [
+					"Admin"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "threshold",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
+			}
+		},
+		"/admin/analytics": {
+			"get": {
+				"operationId": "GetAnalytics",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/AnalyticsResponseDto"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "Admins only"
+					}
+				},
+				"description": "Get platform analytics — admin only",
+				"tags": [
+					"Admin"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": []
 			}
 		},
 		"/admin/products/{productId}/moderate": {

@@ -6,7 +6,9 @@ import {
   Body,
   SuccessResponse,
   Response,
+  Request,
 } from 'tsoa';
+import { Request as ExpressRequest } from 'express';
 import { AuthService } from './auth.service';
 import {
   RegisterDto,
@@ -39,8 +41,11 @@ export class AuthController extends Controller {
   @Post('login')
   @SuccessResponse(200, 'OK')
   @Response(401, 'Invalid credentials')
-  async login(@Body() body: LoginDto): Promise<AuthResponseDto> {
-    return this.authService.login(body);
+  async login(
+    @Request() req: ExpressRequest,
+    @Body() body: LoginDto
+  ): Promise<AuthResponseDto> {
+    return this.authService.login(body, req.ip || 'unknown');
   }
 
   /**

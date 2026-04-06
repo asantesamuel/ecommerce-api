@@ -1,4 +1,5 @@
 import { AppDataSource } from '../../config/database';
+import { LessThan } from 'typeorm';
 import { User, UserRole } from '../../entities/User';
 import { RefreshToken } from '../../entities/RefreshToken';
 import { hashPassword, comparePassword } from '../../utils/hash';
@@ -19,8 +20,13 @@ const failedAttempts = new Map<string, { count: number; blockedUntil?: Date }>()
 const MAX_FAILED_ATTEMPTS = 10;
 const BLOCK_DURATION_MS = 15 * 60 * 1000;
 
-function checkRateLimit(email: string): void {
-  const record = failedAttempts.get(email);
+function getRateLimitKey(ip: string, email: string): string {
+  return `${ip}:${email}`;
+}
+
+function checkRateLimit(ip: string, email: string): void {
+  const key = getRateLimitKey(ip, email);
+  const record = failedAttempts.get(key);
   if (!record) return;
 
   if (record.blockedUntil && record.blockedUntil > new Date()) {
@@ -35,21 +41,23 @@ function checkRateLimit(email: string): void {
   }
 
   if (record.blockedUntil && record.blockedUntil <= new Date()) {
-    failedAttempts.delete(email);
+    failedAttempts.delete(key);
   }
 }
 
-function recordFailedAttempt(email: string): void {
-  const record = failedAttempts.get(email) || { count: 0 };
+function recordFailedAttempt(ip: string, email: string): void {
+  const key = getRateLimitKey(ip, email);
+  const record = failedAttempts.get(key) || { count: 0 };
   record.count += 1;
   if (record.count >= MAX_FAILED_ATTEMPTS) {
     record.blockedUntil = new Date(Date.now() + BLOCK_DURATION_MS);
   }
-  failedAttempts.set(email, record);
+  failedAttempts.set(key, record);
 }
 
-function clearFailedAttempts(email: string): void {
-  failedAttempts.delete(email);
+function clearFailedAttempts(ip: string, email: string): void {
+  const key = getRateLimitKey(ip, email);
+  failedAttempts.delete(key);
 }
 
 export class AuthService {
@@ -100,10 +108,10 @@ export class AuthService {
     };
   }
 
-  async login(dto: LoginDto): Promise<AuthResponseDto> {
+  async login(dto: LoginDto, ip: string): Promise<AuthResponseDto> {
     const email = dto.email.toLowerCase().trim();
 
-    checkRateLimit(email);
+    checkRateLimit(ip, email);
 
     const user = await this.userRepo
       .createQueryBuilder('user')
@@ -112,7 +120,7 @@ export class AuthService {
       .getOne();
 
     if (!user) {
-      recordFailedAttempt(email);
+      recordFailedAttempt(ip, email);
       const error: any = new Error('Invalid email or password');
       error.status = 401;
       throw error;
@@ -131,13 +139,19 @@ export class AuthService {
       user.passwordHash
     );
     if (!passwordValid) {
-      recordFailedAttempt(email);
+      recordFailedAttempt(ip, email);
       const error: any = new Error('Invalid email or password');
       error.status = 401;
       throw error;
     }
 
-    clearFailedAttempts(email);
+    clearFailedAttempts(ip, email);
+
+    // Cleanup expired tokens on login
+    await this.refreshTokenRepo.delete({
+      user: { id: user.id } as any,
+      expiresAt: LessThan(new Date()),
+    });
 
     const payload = { sub: user.id, email: user.email, role: user.role };
     const accessToken = signAccessToken(payload);
@@ -205,16 +219,22 @@ export class AuthService {
     const newAccessToken = signAccessToken(newPayload);
     const newRefreshToken = signRefreshToken(newPayload);
 
-    // Save new token
-    const newTokenEntity = this.refreshTokenRepo.create({
-      token: newRefreshToken,
-      user,
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    // Cleanup expired tokens on refresh
+    await this.refreshTokenRepo.delete({
+      user: { id: user.id } as any,
+      expiresAt: LessThan(new Date()),
     });
-    await this.refreshTokenRepo.save(newTokenEntity);
 
-    // Remove old token
-    await this.refreshTokenRepo.remove(existingToken);
+    // Save new token and remove old token inside a transaction
+    await AppDataSource.transaction(async (manager) => {
+      const newTokenEntity = manager.create(RefreshToken, {
+        token: newRefreshToken,
+        user,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      });
+      await manager.save(newTokenEntity);
+      await manager.remove(existingToken);
+    });
 
     return {
       accessToken: newAccessToken,

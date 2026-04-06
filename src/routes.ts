@@ -494,11 +494,70 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "AdminUserResponseDto": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"string","required":true},
+            "email": {"dataType":"string","required":true},
+            "firstName": {"dataType":"string","required":true},
+            "lastName": {"dataType":"string","required":true},
+            "role": {"dataType":"string","required":true},
+            "isActive": {"dataType":"boolean","required":true},
+            "createdAt": {"dataType":"datetime","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "AdminUserListResponseDto": {
+        "dataType": "refObject",
+        "properties": {
+            "data": {"dataType":"array","array":{"dataType":"refObject","ref":"AdminUserResponseDto"},"required":true},
+            "total": {"dataType":"double","required":true},
+            "page": {"dataType":"double","required":true},
+            "limit": {"dataType":"double","required":true},
+            "totalPages": {"dataType":"double","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "UpdateUserStatusDto": {
         "dataType": "refObject",
         "properties": {
             "isActive": {"dataType":"boolean","required":true},
             "reason": {"dataType":"string","validators":{"minLength":{"value":5},"maxLength":{"value":300}}},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "LowStockAlertDto": {
+        "dataType": "refObject",
+        "properties": {
+            "productId": {"dataType":"string","required":true},
+            "productName": {"dataType":"string","required":true},
+            "slug": {"dataType":"string","required":true},
+            "stockQuantity": {"dataType":"double","required":true},
+            "vendorName": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "InventoryResponseDto": {
+        "dataType": "refObject",
+        "properties": {
+            "alerts": {"dataType":"array","array":{"dataType":"refObject","ref":"LowStockAlertDto"},"required":true},
+            "totalAlerts": {"dataType":"double","required":true},
+            "threshold": {"dataType":"double","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "AnalyticsResponseDto": {
+        "dataType": "refObject",
+        "properties": {
+            "overview": {"dataType":"nestedObjectLiteral","nestedProperties":{"totalRevenue":{"dataType":"double","required":true},"totalOrders":{"dataType":"double","required":true},"totalProducts":{"dataType":"double","required":true},"totalVendors":{"dataType":"double","required":true},"totalUsers":{"dataType":"double","required":true}},"required":true},
+            "orders": {"dataType":"nestedObjectLiteral","nestedProperties":{"failed":{"dataType":"double","required":true},"cancelled":{"dataType":"double","required":true},"refunded":{"dataType":"double","required":true},"delivered":{"dataType":"double","required":true},"shipped":{"dataType":"double","required":true},"processing":{"dataType":"double","required":true},"paid":{"dataType":"double","required":true},"pending":{"dataType":"double","required":true}},"required":true},
+            "recentOrders": {"dataType":"array","array":{"dataType":"any"},"required":true},
+            "topProducts": {"dataType":"array","array":{"dataType":"any"},"required":true},
         },
         "additionalProperties": false,
     },
@@ -1802,6 +1861,7 @@ export function RegisterRoutes(app: Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         const argsAuthController_login: Record<string, TsoaRoute.ParameterSchema> = {
+                req: {"in":"request","name":"req","required":true,"dataType":"object"},
                 body: {"in":"body","name":"body","required":true,"ref":"LoginDto"},
         };
         app.post('/auth/login',
@@ -1895,6 +1955,8 @@ export function RegisterRoutes(app: Router) {
                 req: {"in":"request","name":"req","required":true,"dataType":"object"},
                 page: {"in":"query","name":"page","dataType":"double"},
                 limit: {"in":"query","name":"limit","dataType":"double"},
+                role: {"in":"query","name":"role","dataType":"string"},
+                search: {"in":"query","name":"search","dataType":"string"},
         };
         app.get('/admin/users',
             authenticateMiddleware([{"jwt":[]}]),
@@ -1946,6 +2008,103 @@ export function RegisterRoutes(app: Router) {
 
               await templateService.apiHandler({
                 methodName: 'updateUserStatus',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsAdminController_getAllOrders: Record<string, TsoaRoute.ParameterSchema> = {
+                req: {"in":"request","name":"req","required":true,"dataType":"object"},
+                page: {"in":"query","name":"page","dataType":"double"},
+                limit: {"in":"query","name":"limit","dataType":"double"},
+                status: {"in":"query","name":"status","dataType":"string"},
+        };
+        app.get('/admin/orders',
+            authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(AdminController)),
+            ...(fetchMiddlewares<RequestHandler>(AdminController.prototype.getAllOrders)),
+
+            async function AdminController_getAllOrders(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsAdminController_getAllOrders, request, response });
+
+                const controller = new AdminController();
+
+              await templateService.apiHandler({
+                methodName: 'getAllOrders',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsAdminController_getLowStockAlerts: Record<string, TsoaRoute.ParameterSchema> = {
+                req: {"in":"request","name":"req","required":true,"dataType":"object"},
+                threshold: {"in":"query","name":"threshold","dataType":"double"},
+        };
+        app.get('/admin/inventory/low-stock',
+            authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(AdminController)),
+            ...(fetchMiddlewares<RequestHandler>(AdminController.prototype.getLowStockAlerts)),
+
+            async function AdminController_getLowStockAlerts(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsAdminController_getLowStockAlerts, request, response });
+
+                const controller = new AdminController();
+
+              await templateService.apiHandler({
+                methodName: 'getLowStockAlerts',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsAdminController_getAnalytics: Record<string, TsoaRoute.ParameterSchema> = {
+                req: {"in":"request","name":"req","required":true,"dataType":"object"},
+        };
+        app.get('/admin/analytics',
+            authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(AdminController)),
+            ...(fetchMiddlewares<RequestHandler>(AdminController.prototype.getAnalytics)),
+
+            async function AdminController_getAnalytics(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsAdminController_getAnalytics, request, response });
+
+                const controller = new AdminController();
+
+              await templateService.apiHandler({
+                methodName: 'getAnalytics',
                 controller,
                 response,
                 next,
