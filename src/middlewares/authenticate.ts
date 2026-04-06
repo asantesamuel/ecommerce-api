@@ -30,6 +30,7 @@ export function expressAuthentication(
       });
 
       if (!user || !user.isActive) {
+        console.error('[AUTH DEBUG] User not found for payload:', payload, 'DB returned:', user);
         const error: any = new Error(
           !user ? 'User not found' : 'Your account has been suspended'
         );

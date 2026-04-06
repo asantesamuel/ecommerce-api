@@ -7,6 +7,9 @@ export const app = createApp();
 /**
  * Creates a valid test user through the API
  */
+import { AppDataSource } from '../config/database';
+import { User, UserRole } from '../entities/User';
+
 export async function createTestUser(email = 'test@example.com', password = 'Password123!') {
   const registerResponse = await request(app)
     .post('/auth/register')
@@ -25,6 +28,26 @@ export async function createTestUser(email = 'test@example.com', password = 'Pas
     }
   }
 
+  const loginResponse = await request(app)
+    .post('/auth/login')
+    .send({ email, password });
+
+  return {
+    token: loginResponse.body.accessToken,
+    user: loginResponse.body.user,
+  };
+}
+
+export async function createAdminUser(email = 'admin@example.com', password = 'AdminPassword123!') {
+  const data = await createTestUser(email, password);
+  
+  // Directly update the role properly via TypeORM ENUM
+  await AppDataSource.getRepository(User).update(
+    { email },
+    { role: UserRole.ADMIN }
+  );
+  
+  // Login again to get token with admin role payload
   const loginResponse = await request(app)
     .post('/auth/login')
     .send({ email, password });

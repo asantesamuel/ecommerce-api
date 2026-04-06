@@ -12,21 +12,19 @@ beforeAll(async () => {
   if (!AppDataSource.isInitialized) {
     await AppDataSource.initialize();
   }
-});
-
-afterAll(async () => {
-  if (AppDataSource.isInitialized) {
-    await AppDataSource.destroy();
-  }
-});
-
-afterEach(async () => {
-  // Clear the database after each test to prevent test cross-contamination
+  
+  // Clear the database at the start of each test suite to prevent cross-contamination
   if (AppDataSource.isInitialized) {
     const entities = AppDataSource.entityMetadatas;
     for (const entity of entities) {
       const repository = AppDataSource.getRepository(entity.name);
       await repository.query(`TRUNCATE TABLE "${entity.tableName}" CASCADE;`);
     }
+  }
+});
+
+afterAll(async () => {
+  if (AppDataSource.isInitialized) {
+    await AppDataSource.destroy();
   }
 });

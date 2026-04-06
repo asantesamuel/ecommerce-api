@@ -1,0 +1,170 @@
+﻿  console.log
+    [dotenv@17.3.1] injecting env (18) from .env -- tip: ÔÜÖ´©Å  write to custom object with { processEnv: myObject }
+
+      at _log (node_modules/dotenv/lib/main.js:139:11)
+
+  console.log
+    [dotenv@17.3.1] injecting env (0) from .env -- tip: ­ƒøí´©Å auth for agents: https://vestauth.com
+
+      at _log (node_modules/dotenv/lib/main.js:139:11)
+
+  console.log
+    [dotenv@17.3.1] injecting env (0) from .env -- tip: ­ƒöÉ encrypt with Dotenvx: https://dotenvx.com
+
+      at _log (node_modules/dotenv/lib/main.js:139:11)
+
+  console.log
+    [dotenv@17.3.1] injecting env (0) from .env -- tip: ­ƒöÉ encrypt with Dotenvx: https://dotenvx.com
+
+      at _log (node_modules/dotenv/lib/main.js:139:11)
+
+  console.log
+    [dotenv@17.3.1] injecting env (0) from .env -- tip: ÔÜÖ´©Å  suppress all logs with { quiet: true }
+
+      at _log (node_modules/dotenv/lib/main.js:139:11)
+
+  console.log
+    [dotenv@17.3.1] injecting env (0) from .env -- tip: ÔÜÖ´©Å  write to custom object with { processEnv: myObject }
+
+      at _log (node_modules/dotenv/lib/main.js:139:11)
+
+node.exe : (node:21616) DeprecationWarning: Calling client.query() when the 
+client is already executing a query is deprecated and will be removed in pg@9.0. 
+Use async/await or an external async flow control mechanism instead.
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Users\BOAKYE\AppData\Roaming ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ((node:21616) De...hanism instead.:St 
+   ring) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+(Use `node --trace-deprecation ...` to show where the warning was created)
+[0mPOST /auth/register [32m201[0m 331.116 ms - 798[0m
+[0mPOST /auth/login [32m200[0m 279.092 ms - 798[0m
+[0mPOST /auth/login [32m200[0m 284.675 ms - 787[0m
+[0mPOST /auth/register [32m201[0m 271.259 ms - 809[0m
+[0mPOST /auth/login [32m200[0m 286.536 ms - 809[0m
+[0mGET /admin/users [32m200[0m 7.219 ms - 427[0m
+[0mGET /admin/users [33m403[0m 3.207 ms - 123[0m
+[0mPOST /admin/users/ca794764-df2c-47f6-a2af-77eb242e2d2f/status [33m403[0m 3.562 ms - 167[0m
+[0mGET /admin/orders [33m403[0m 3.832 ms - 124[0m
+[0mGET /admin/inventory/low-stock [33m403[0m 3.146 ms - 137[0m
+[0mGET /admin/analytics [33m403[0m 4.087 ms - 127[0m
+[0mPOST /admin/products/00000000-0000-0000-0000-000000000000/moderate [33m403[0m 5.128 ms - 172[0m
+FAIL src/tests/admin.test.ts (7.727 s)
+  Admin API Integration Tests
+    ÔêÜ should allow admin to fetch all users (256 ms)
+    ÔêÜ should prevent non-admins from fetching users (211 ms)
+    ├ù should allow admin to change user status (230 ms)
+    ├ù should allow admin to inspect orders (236 ms)
+    ├ù should allow admin to fetch inventory alerts (224 ms)
+    ├ù should allow admin to view metrics dashboard (404 ms)
+    ├ù should allow admin to moderate a product (239 ms)
+
+  ÔùÅ Admin API Integration Tests ÔÇ║ should allow admin to change user status
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 403
+
+    [0m [90m 42 |[39m       [33m.[39msend({ isActive[33m:[39m 
+[36mfalse[39m })[33m;[39m
+     [90m 43 |[39m       
+    [31m[1m>[22m[39m[90m 44 |[39m     
+expect(res[33m.[39mstatus)[33m.[39mtoBe([35m200[39m)[33m;[39m
+     [90m    |[39m                        [31m[1m^[22m[39m
+     [90m 45 |[39m     expect(res[33m.[39mbody[33m.[39misActive)[33m.[39mt
+oBe([36mfalse[39m)[33m;[39m
+     [90m 46 |[39m   })[33m;[39m
+     [90m 47 |[39m[0m
+
+      at Object.<anonymous> (src/tests/admin.test.ts:44:24)
+
+  ÔùÅ Admin API Integration Tests ÔÇ║ should allow admin to inspect orders
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 403
+
+    [0m [90m 51 |[39m       
+[33m.[39m[36mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer 
+${adminToken}`[39m)[33m;[39m
+     [90m 52 |[39m       
+    [31m[1m>[22m[39m[90m 53 |[39m     
+expect(res[33m.[39mstatus)[33m.[39mtoBe([35m200[39m)[33m;[39m
+     [90m    |[39m                        [31m[1m^[22m[39m
+     [90m 54 |[39m     
+expect(res[33m.[39mbody)[33m.[39mtoHaveProperty([32m'data'[39m)[33m;[39m
+     [90m 55 |[39m   })[33m;[39m
+     [90m 56 |[39m[0m
+
+      at Object.<anonymous> (src/tests/admin.test.ts:53:24)
+
+  ÔùÅ Admin API Integration Tests ÔÇ║ should allow admin to fetch inventory alerts
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 403
+
+    [0m [90m 60 |[39m       
+[33m.[39m[36mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer 
+${adminToken}`[39m)[33m;[39m
+     [90m 61 |[39m       
+    [31m[1m>[22m[39m[90m 62 |[39m     
+expect(res[33m.[39mstatus)[33m.[39mtoBe([35m200[39m)[33m;[39m
+     [90m    |[39m                        [31m[1m^[22m[39m
+     [90m 63 |[39m     
+expect(res[33m.[39mbody)[33m.[39mtoHaveProperty([32m'alerts'[39m)[33m;[39m
+     [90m 64 |[39m   })[33m;[39m
+     [90m 65 |[39m[0m
+
+      at Object.<anonymous> (src/tests/admin.test.ts:62:24)
+
+  ÔùÅ Admin API Integration Tests ÔÇ║ should allow admin to view metrics dashboard
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 403
+
+    [0m [90m 69 |[39m       
+[33m.[39m[36mset[39m([32m'Authorization'[39m[33m,[39m [32m`Bearer 
+${adminToken}`[39m)[33m;[39m
+     [90m 70 |[39m       
+    [31m[1m>[22m[39m[90m 71 |[39m     
+expect(res[33m.[39mstatus)[33m.[39mtoBe([35m200[39m)[33m;[39m
+     [90m    |[39m                        [31m[1m^[22m[39m
+     [90m 72 |[39m     expect(res[33m.[39mbody)[33m.[39mtoHaveProperty([32m
+'overview'[39m)[33m;[39m
+     [90m 73 |[39m   })[33m;[39m
+     [90m 74 |[39m[0m
+
+      at Object.<anonymous> (src/tests/admin.test.ts:71:24)
+
+  ÔùÅ Admin API Integration Tests ÔÇ║ should allow admin to moderate a product
+
+    expect(received).toContain(expected) // indexOf
+
+    Expected value: 403
+    Received array: [200, 404]
+
+    [0m [90m 81 |[39m       })[33m;[39m
+     [90m 82 |[39m       
+    [31m[1m>[22m[39m[90m 83 |[39m     expect([[35m200[39m[33m,[39m 
+[35m404[39m])[33m.[39mtoContain(res[33m.[39mstatus)[33m;[39m [90m// 404 
+since product may not exist[39m
+     [90m    |[39m                        [31m[1m^[22m[39m
+     [90m 84 |[39m   })[33m;[39m
+     [90m 85 |[39m })[33m;[39m
+     [90m 86 |[39m[0m
+
+      at Object.<anonymous> (src/tests/admin.test.ts:83:24)
+
+Test Suites: 1 failed, 1 total
+Tests:       5 failed, 2 passed, 7 total
+Snapshots:   0 total
+Time:        8.008 s, estimated 10 s
+Ran all test suites matching src/tests/admin.test.ts.
