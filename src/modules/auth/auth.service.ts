@@ -15,49 +15,41 @@ import {
   AuthResponseDto,
   RefreshResponseDto,
 } from './auth.dto';
+import { redisClient } from '../../middlewares/rateLimiter';
 
-const failedAttempts = new Map<string, { count: number; blockedUntil?: Date }>();
 const MAX_FAILED_ATTEMPTS = 10;
-const BLOCK_DURATION_MS = 15 * 60 * 1000;
+const BLOCK_DURATION_SEC = 15 * 60; // 15 minutes
 
 function getRateLimitKey(ip: string, email: string): string {
-  return `${ip}:${email}`;
+  return `failed_login:${ip}:${email}`;
 }
 
-function checkRateLimit(ip: string, email: string): void {
+async function checkRateLimit(ip: string, email: string): Promise<void> {
   const key = getRateLimitKey(ip, email);
-  const record = failedAttempts.get(key);
-  if (!record) return;
-
-  if (record.blockedUntil && record.blockedUntil > new Date()) {
-    const minutesLeft = Math.ceil(
-      (record.blockedUntil.getTime() - Date.now()) / 60000
-    );
-    const error: any = new Error(
-      `Too many failed attempts. Try again in ${minutesLeft} minute(s).`
-    );
-    error.status = 429;
-    throw error;
-  }
-
-  if (record.blockedUntil && record.blockedUntil <= new Date()) {
-    failedAttempts.delete(key);
+  const countStr = await redisClient.get(key);
+  if (countStr) {
+    const count = parseInt(countStr, 10);
+    if (count >= MAX_FAILED_ATTEMPTS) {
+      const ttl = await redisClient.ttl(key);
+      const minutesLeft = Math.max(1, Math.ceil(ttl / 60));
+      const error: any = new Error(
+        `Too many failed attempts. Try again in ${minutesLeft} minute(s).`
+      );
+      error.status = 429;
+      throw error;
+    }
   }
 }
 
-function recordFailedAttempt(ip: string, email: string): void {
+async function recordFailedAttempt(ip: string, email: string): Promise<void> {
   const key = getRateLimitKey(ip, email);
-  const record = failedAttempts.get(key) || { count: 0 };
-  record.count += 1;
-  if (record.count >= MAX_FAILED_ATTEMPTS) {
-    record.blockedUntil = new Date(Date.now() + BLOCK_DURATION_MS);
-  }
-  failedAttempts.set(key, record);
+  await redisClient.incr(key);
+  await redisClient.expire(key, BLOCK_DURATION_SEC);
 }
 
-function clearFailedAttempts(ip: string, email: string): void {
+async function clearFailedAttempts(ip: string, email: string): Promise<void> {
   const key = getRateLimitKey(ip, email);
-  failedAttempts.delete(key);
+  await redisClient.del(key);
 }
 
 export class AuthService {
@@ -111,7 +103,7 @@ export class AuthService {
   async login(dto: LoginDto, ip: string): Promise<AuthResponseDto> {
     const email = dto.email.toLowerCase().trim();
 
-    checkRateLimit(ip, email);
+    await checkRateLimit(ip, email);
 
     const user = await this.userRepo
       .createQueryBuilder('user')
@@ -120,7 +112,7 @@ export class AuthService {
       .getOne();
 
     if (!user) {
-      recordFailedAttempt(ip, email);
+      await recordFailedAttempt(ip, email);
       const error: any = new Error('Invalid email or password');
       error.status = 401;
       throw error;
@@ -139,13 +131,13 @@ export class AuthService {
       user.passwordHash
     );
     if (!passwordValid) {
-      recordFailedAttempt(ip, email);
+      await recordFailedAttempt(ip, email);
       const error: any = new Error('Invalid email or password');
       error.status = 401;
       throw error;
     }
 
-    clearFailedAttempts(ip, email);
+    await clearFailedAttempts(ip, email);
 
     // Cleanup expired tokens on login
     await this.refreshTokenRepo.delete({

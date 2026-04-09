@@ -7,6 +7,8 @@ process.env.NODE_ENV = 'test';
 
 import { AppDataSource } from '../config/database';
 
+jest.mock('ioredis', () => require('ioredis-mock'));
+
 beforeAll(async () => {
   // Wait to initialize the database
   if (!AppDataSource.isInitialized) {

@@ -2,6 +2,14 @@ import request from 'supertest';
 import { app } from './testHelpers';
 import { createTestUser } from './testHelpers';
 
+jest.mock('@aws-sdk/s3-request-presigner', () => ({
+  getSignedUrl: jest.fn().mockResolvedValue('https://mock-valid-upload-url.com/file'),
+}));
+jest.mock('@aws-sdk/client-s3', () => ({
+  S3Client: jest.fn().mockImplementation(() => ({})),
+  PutObjectCommand: jest.fn().mockImplementation(() => ({})),
+}));
+
 describe('Uploads API Integration Tests', () => {
   let userToken: string;
 

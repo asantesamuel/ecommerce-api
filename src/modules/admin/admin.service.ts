@@ -235,14 +235,14 @@ export class AdminService {
       // Top 5 best-selling products by quantity
       this.orderItemRepo
         .createQueryBuilder('item')
-        .leftJoinAndSelect('item.product', 'product')
+        .leftJoin('item.product', 'product')
         .select('product.id',             'productId')
         .addSelect('product.name',        'productName')
         .addSelect('SUM(item.quantity)',   'totalSold')
         .addSelect('SUM(item.unitPrice * item.quantity)', 'revenue')
         .groupBy('product.id')
         .addGroupBy('product.name')
-        .orderBy('totalSold', 'DESC')
+        .orderBy('"totalSold"', 'DESC')
         .limit(5)
         .getRawMany(),
     ]);

@@ -73,58 +73,72 @@ export class CartService {
     dto: AddCartItemDto,
     currentUser: JwtPayload
   ): Promise<CartResponseDto> {
-    const cart = await this.getOrCreateCart(currentUser.sub);
+    await AppDataSource.transaction(async (manager) => {
+      // 1. Pessimistic Write Lock on Product to prevent concurrent overselling
+      const product = await manager.findOne(Product, {
+        where: { id: dto.productId, isActive: true },
+        lock: { mode: 'pessimistic_write' },
+      });
 
-    // Validate product exists, is active and approved
-    const product = await this.productRepo.findOne({
-      where: { id: dto.productId, isActive: true },
-    });
-    if (!product) {
-      const error: any = new Error('Product not found or unavailable');
-      error.status = 404;
-      throw error;
-    }
+      if (!product) {
+        const error: any = new Error('Product not found or unavailable');
+        error.status = 404;
+        throw error;
+      }
 
-    // Check stock availability
-    if (product.stockQuantity < dto.quantity) {
-      const error: any = new Error(
-        `Insufficient stock. Only ${product.stockQuantity} unit(s) available.`
-      );
-      error.status = 400;
-      throw error;
-    }
-
-    // If item already exists in cart, update quantity instead
-    const existingItem = cart.items?.find(
-      i => i.product.id === dto.productId
-    );
-
-    if (existingItem) {
-      const newQty = existingItem.quantity + dto.quantity;
-
-      // Check combined quantity does not exceed stock
-      if (newQty > product.stockQuantity) {
+      // 2. Initial stock check
+      if (product.stockQuantity < dto.quantity) {
         const error: any = new Error(
-          `Cannot add ${dto.quantity} more. You already have ${existingItem.quantity} in your cart and only ${product.stockQuantity} are in stock.`
+          `Insufficient stock. Only ${product.stockQuantity} unit(s) available.`
         );
         error.status = 400;
         throw error;
       }
 
-      existingItem.quantity = newQty;
-      await this.cartItemRepo.save(existingItem);
-    } else {
-      // Snapshot the current price at time of adding to cart
-      const cartItem = this.cartItemRepo.create({
-        cart,
-        product,
-        quantity:  dto.quantity,
-        unitPrice: product.price, // price snapshot
+      // 3. Fetch or Create Cart
+      let cart = await manager.findOne(Cart, {
+        where: { user: { id: currentUser.sub } },
+        relations: ['items', 'items.product'],
       });
-      await this.cartItemRepo.save(cartItem);
-    }
 
-    // Reload cart with updated items
+      if (!cart) {
+        const user = await manager.findOne(User, { where: { id: currentUser.sub } });
+        if (!user) {
+          const error: any = new Error('User not found');
+          error.status = 404;
+          throw error;
+        }
+        cart = manager.create(Cart, { user, items: [] });
+        await manager.save(cart);
+      }
+
+      // 4. Update or Add Item
+      const existingItem = cart.items?.find(
+        i => i.product.id === dto.productId
+      );
+
+      if (existingItem) {
+        const newQty = existingItem.quantity + dto.quantity;
+        if (newQty > product.stockQuantity) {
+          const error: any = new Error(
+            `Cannot add ${dto.quantity} more. You already have ${existingItem.quantity} in your cart and only ${product.stockQuantity} are in stock.`
+          );
+          error.status = 400;
+          throw error;
+        }
+        existingItem.quantity = newQty;
+        await manager.save(existingItem);
+      } else {
+        const cartItem = manager.create(CartItem, {
+          cart,
+          product,
+          quantity:  dto.quantity,
+          unitPrice: product.price,
+        });
+        await manager.save(cartItem);
+      }
+    });
+
     return this.getCart(currentUser);
   }
 
