@@ -16,7 +16,7 @@ export function createApp(): Express {
   const app = express();
 
   app.use(helmet());
-  app.use(cors({ origin: process.env.FRONTEND_URL || '*' }));
+  app.use(cors({ origin: true, credentials: true }));
   app.use(morgan('dev'));
 
   // Raw body for Paystack webhook signature verification
