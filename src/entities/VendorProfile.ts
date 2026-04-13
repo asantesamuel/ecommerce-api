@@ -27,7 +27,10 @@ export class VendorProfile {
   user!: User;
 
   @Column()
-  businessName!: string;
+  companyName!: string;
+
+  @Column({ type: 'timestamp', nullable: true })
+  companyEstablishedDate!: Date | null;
 
   @Column({ nullable: true })
   registrationNumber!: string;

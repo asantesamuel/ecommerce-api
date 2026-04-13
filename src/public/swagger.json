@@ -12,8 +12,13 @@
 					"id": {
 						"type": "string"
 					},
-					"businessName": {
+					"companyName": {
 						"type": "string"
+					},
+					"companyEstablishedDate": {
+						"type": "string",
+						"format": "date-time",
+						"nullable": true
 					},
 					"registrationNumber": {
 						"type": "string"
@@ -43,7 +48,8 @@
 				},
 				"required": [
 					"id",
-					"businessName",
+					"companyName",
+					"companyEstablishedDate",
 					"registrationNumber",
 					"contactEmail",
 					"country",
@@ -96,29 +102,8 @@
 				"type": "object",
 				"additionalProperties": false
 			},
-			"VendorApplyDto": {
+			"VendorPayFeeDto": {
 				"properties": {
-					"businessName": {
-						"type": "string",
-						"minLength": 2,
-						"maxLength": 200
-					},
-					"registrationNumber": {
-						"type": "string",
-						"minLength": 2,
-						"maxLength": 100
-					},
-					"contactEmail": {
-						"type": "string",
-						"format": "email"
-					},
-					"country": {
-						"type": "string",
-						"description": "ISO 3166-1 alpha-2 country code",
-						"minLength": 2,
-						"maxLength": 2,
-						"pattern": "^[A-Z]{2}$"
-					},
 					"currency": {
 						"type": "string",
 						"description": "Currency to pay the onboarding fee in",
@@ -131,13 +116,6 @@
 						"description": "URL Paystack redirects to after fee payment"
 					}
 				},
-				"required": [
-					"businessName",
-					"registrationNumber",
-					"contactEmail",
-					"country",
-					"currency"
-				],
 				"type": "object",
 				"additionalProperties": false
 			},
@@ -1269,6 +1247,23 @@
 						"minLength": 2,
 						"maxLength": 50,
 						"pattern": "^[a-zA-Z\\s'-]+$"
+					},
+					"role": {
+						"type": "string",
+						"enum": [
+							"customer",
+							"vendor"
+						],
+						"description": "Optional role override"
+					},
+					"companyName": {
+						"type": "string",
+						"description": "Required if role is vendor"
+					},
+					"companyEstablishedDate": {
+						"type": "string",
+						"format": "date-time",
+						"description": "Required if role is vendor"
 					}
 				},
 				"required": [
@@ -1619,12 +1614,12 @@
 		"contact": {}
 	},
 	"paths": {
-		"/vendors/apply": {
+		"/vendors/pay-fee": {
 			"post": {
-				"operationId": "Apply",
+				"operationId": "PayFee",
 				"responses": {
-					"201": {
-						"description": "Application submitted",
+					"200": {
+						"description": "Fee payment initialized",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -1633,11 +1628,10 @@
 							}
 						}
 					},
-					"409": {
-						"description": "Already has a vendor profile"
+					"400": {
+						"description": "Vendor is not in pending_payment status"
 					}
 				},
-				"description": "Apply to become a vendor.\nReturns a paymentUrl — redirect the user there to pay the onboarding fee.\nStatus moves from pending_payment → pending_review after fee is confirmed.",
 				"tags": [
 					"Vendors"
 				],
@@ -1652,7 +1646,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/VendorApplyDto"
+								"$ref": "#/components/schemas/VendorPayFeeDto"
 							}
 						}
 					}
@@ -2663,6 +2657,55 @@
 					}
 				},
 				"description": "Get the authenticated user's order history",
+				"tags": [
+					"Orders"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "page",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"in": "query",
+						"name": "limit",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
+			}
+		},
+		"/orders/vendor/my-orders": {
+			"get": {
+				"operationId": "GetVendorOrders",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/OrderListResponseDto"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "Vendors only"
+					}
+				},
+				"description": "Get the authenticated vendor's order history\nRetrieves orders that contain products created by the vendor",
 				"tags": [
 					"Orders"
 				],

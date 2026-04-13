@@ -39,7 +39,8 @@ const models: TsoaRoute.Models = {
         "dataType": "refObject",
         "properties": {
             "id": {"dataType":"string","required":true},
-            "businessName": {"dataType":"string","required":true},
+            "companyName": {"dataType":"string","required":true},
+            "companyEstablishedDate": {"dataType":"union","subSchemas":[{"dataType":"datetime"},{"dataType":"enum","enums":[null]}],"required":true},
             "registrationNumber": {"dataType":"string","required":true},
             "contactEmail": {"dataType":"string","required":true},
             "country": {"dataType":"string","required":true},
@@ -60,14 +61,10 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "VendorApplyDto": {
+    "VendorPayFeeDto": {
         "dataType": "refObject",
         "properties": {
-            "businessName": {"dataType":"string","required":true,"validators":{"minLength":{"value":2},"maxLength":{"value":200}}},
-            "registrationNumber": {"dataType":"string","required":true,"validators":{"minLength":{"value":2},"maxLength":{"value":100}}},
-            "contactEmail": {"dataType":"string","required":true},
-            "country": {"dataType":"string","required":true,"validators":{"minLength":{"value":2},"maxLength":{"value":2},"pattern":{"value":"^[A-Z]{2}$"}}},
-            "currency": {"dataType":"string","required":true,"validators":{"minLength":{"value":3},"maxLength":{"value":3},"pattern":{"value":"^[A-Z]{3}$"}}},
+            "currency": {"dataType":"string","validators":{"minLength":{"value":3},"maxLength":{"value":3},"pattern":{"value":"^[A-Z]{3}$"}}},
             "callbackUrl": {"dataType":"string"},
         },
         "additionalProperties": false,
@@ -456,6 +453,9 @@ const models: TsoaRoute.Models = {
             "password": {"ref":"StrongPassword","required":true},
             "firstName": {"dataType":"string","required":true,"validators":{"minLength":{"value":2},"maxLength":{"value":50},"pattern":{"value":"^[a-zA-Z\\s'-]+$"}}},
             "lastName": {"dataType":"string","required":true,"validators":{"minLength":{"value":2},"maxLength":{"value":50},"pattern":{"value":"^[a-zA-Z\\s'-]+$"}}},
+            "role": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["customer"]},{"dataType":"enum","enums":["vendor"]}]},
+            "companyName": {"dataType":"string"},
+            "companyEstablishedDate": {"dataType":"datetime"},
         },
         "additionalProperties": false,
     },
@@ -588,32 +588,32 @@ export function RegisterRoutes(app: Router) {
 
 
     
-        const argsVendorsController_apply: Record<string, TsoaRoute.ParameterSchema> = {
+        const argsVendorsController_payFee: Record<string, TsoaRoute.ParameterSchema> = {
                 req: {"in":"request","name":"req","required":true,"dataType":"object"},
-                body: {"in":"body","name":"body","required":true,"ref":"VendorApplyDto"},
+                body: {"in":"body","name":"body","required":true,"ref":"VendorPayFeeDto"},
         };
-        app.post('/vendors/apply',
+        app.post('/vendors/pay-fee',
             authenticateMiddleware([{"jwt":[]}]),
             ...(fetchMiddlewares<RequestHandler>(VendorsController)),
-            ...(fetchMiddlewares<RequestHandler>(VendorsController.prototype.apply)),
+            ...(fetchMiddlewares<RequestHandler>(VendorsController.prototype.payFee)),
 
-            async function VendorsController_apply(request: ExRequest, response: ExResponse, next: any) {
+            async function VendorsController_payFee(request: ExRequest, response: ExResponse, next: any) {
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
             let validatedArgs: any[] = [];
             try {
-                validatedArgs = templateService.getValidatedArgs({ args: argsVendorsController_apply, request, response });
+                validatedArgs = templateService.getValidatedArgs({ args: argsVendorsController_payFee, request, response });
 
                 const controller = new VendorsController();
 
               await templateService.apiHandler({
-                methodName: 'apply',
+                methodName: 'payFee',
                 controller,
                 response,
                 next,
                 validatedArgs,
-                successStatus: 201,
+                successStatus: 200,
               });
             } catch (err) {
                 return next(err);
@@ -1409,6 +1409,39 @@ export function RegisterRoutes(app: Router) {
 
               await templateService.apiHandler({
                 methodName: 'getMyOrders',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsOrdersController_getVendorOrders: Record<string, TsoaRoute.ParameterSchema> = {
+                req: {"in":"request","name":"req","required":true,"dataType":"object"},
+                page: {"in":"query","name":"page","dataType":"double"},
+                limit: {"in":"query","name":"limit","dataType":"double"},
+        };
+        app.get('/orders/vendor/my-orders',
+            authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(OrdersController)),
+            ...(fetchMiddlewares<RequestHandler>(OrdersController.prototype.getVendorOrders)),
+
+            async function OrdersController_getVendorOrders(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsOrdersController_getVendorOrders, request, response });
+
+                const controller = new OrdersController();
+
+              await templateService.apiHandler({
+                methodName: 'getVendorOrders',
                 controller,
                 response,
                 next,

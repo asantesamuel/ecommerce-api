@@ -6,7 +6,7 @@ import {
 import { Request as ExpressRequest } from 'express';
 import { VendorsService }            from './vendors.service';
 import {
-  VendorApplyDto,
+  VendorPayFeeDto,
   SubmitDocumentDto,
   VendorProfileResponseDto,
   VendorDocumentResponseDto,
@@ -21,20 +21,15 @@ import {
 export class VendorsController extends Controller {
   private service = new VendorsService();
 
-  /**
-   * Apply to become a vendor.
-   * Returns a paymentUrl — redirect the user there to pay the onboarding fee.
-   * Status moves from pending_payment → pending_review after fee is confirmed.
-   */
-  @Post('apply')
-  @SuccessResponse(201, 'Application submitted')
-  @Response(409, 'Already has a vendor profile')
-  async apply(
+  @Post('pay-fee')
+  @SuccessResponse(200, 'Fee payment initialized')
+  @Response(400, 'Vendor is not in pending_payment status')
+  async payFee(
     @Request() req: ExpressRequest,
-    @Body() body: VendorApplyDto
+    @Body() body: VendorPayFeeDto
   ): Promise<VendorOnboardingResponseDto> {
-    this.setStatus(201);
-    return this.service.apply(body, req.user!);
+    this.setStatus(200);
+    return this.service.payFee(body, req.user!);
   }
 
   /**

@@ -14,7 +14,7 @@ import {
 } from '../../config/s3';
 import { JwtPayload }                         from '../../utils/jwt';
 import {
-  VendorApplyDto,
+  VendorPayFeeDto,
   SubmitDocumentDto,
   VendorProfileResponseDto,
   VendorDocumentResponseDto,
@@ -32,7 +32,8 @@ export class VendorsService {
   private formatVendor(v: VendorProfile): VendorProfileResponseDto {
     return {
       id:                 v.id,
-      businessName:       v.businessName,
+      companyName:        v.companyName,
+      companyEstablishedDate: v.companyEstablishedDate,
       registrationNumber: v.registrationNumber,
       contactEmail:       v.contactEmail,
       country:            v.country,
@@ -43,24 +44,11 @@ export class VendorsService {
     };
   }
 
-  // ── POST /vendors/apply ───────────────────────────────────────────────────
-  async apply(
-    dto:         VendorApplyDto,
+  // ── POST /vendors/pay-fee ───────────────────────────────────────────────────
+  async payFee(
+    dto:         VendorPayFeeDto,
     currentUser: JwtPayload
   ): Promise<VendorOnboardingResponseDto> {
-    // Check user does not already have a vendor profile
-    const existing = await this.vendorRepo.findOne({
-      where: { user: { id: currentUser.sub } },
-    });
-    if (existing) {
-      const error: any = new Error(
-        'You already have a vendor profile. ' +
-        `Current status: ${existing.status}`
-      );
-      error.status = 409;
-      throw error;
-    }
-
     const user = await this.userRepo.findOne({
       where: { id: currentUser.sub },
     });
@@ -70,16 +58,22 @@ export class VendorsService {
       throw error;
     }
 
-    // Create vendor profile with pending_payment status
-    const vendor = this.vendorRepo.create({
-      user,
-      businessName:       dto.businessName,
-      registrationNumber: dto.registrationNumber,
-      contactEmail:       dto.contactEmail,
-      country:            dto.country,
-      status:             VendorStatus.PENDING_PAYMENT,
+    const vendor = await this.vendorRepo.findOne({
+      where: { user: { id: currentUser.sub } },
     });
-    await this.vendorRepo.save(vendor);
+    if (!vendor) {
+      const error: any = new Error('Vendor profile not found. Please register as a vendor first.');
+      error.status = 404;
+      throw error;
+    }
+
+    if (vendor.status !== VendorStatus.PENDING_PAYMENT) {
+      const error: any = new Error(
+        `You cannot pay the onboarding fee. Current status: ${vendor.status}`
+      );
+      error.status = 400;
+      throw error;
+    }
 
     // Get onboarding fee amount from env
     const feeAmount = Number(process.env.VENDOR_ONBOARDING_FEE || 5000) / 100;
@@ -96,7 +90,7 @@ export class VendorsService {
       metadata: {
         vendorId:     vendor.id,
         type:         'vendor_onboarding_fee',
-        businessName: dto.businessName,
+        companyName:  vendor.companyName,
       },
     });
 

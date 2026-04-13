@@ -47,6 +47,20 @@ export class OrdersController extends Controller {
   }
 
   /**
+   * Get the authenticated vendor's order history
+   * Retrieves orders that contain products created by the vendor
+   */
+  @Get('vendor/my-orders')
+  @Response(403, 'Vendors only')
+  async getVendorOrders(
+    @Request() req: ExpressRequest,
+    @Query() page?:  number,
+    @Query() limit?: number
+  ): Promise<OrderListResponseDto> {
+    return this.service.findVendorOrders(req.user!, page, limit);
+  }
+
+  /**
    * Get a single order by ID.
    * Customers can only view their own orders.
    * Admins can view any order.

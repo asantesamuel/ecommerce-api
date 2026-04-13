@@ -1,27 +1,12 @@
 // TODO: define request/response DTOs for vendors
 // Use class-validator decorators for tsoa validation
 
-export interface VendorApplyDto {
-  /** @minLength 2 @maxLength 200 */
-  businessName: string;
-
-  /** @minLength 2 @maxLength 100 */
-  registrationNumber: string;
-
-  /** @format email */
-  contactEmail: string;
-
-  /**
-   * ISO 3166-1 alpha-2 country code
-   * @minLength 2 @maxLength 2 @pattern ^[A-Z]{2}$
-   */
-  country: string;
-
+export interface VendorPayFeeDto {
   /**
    * Currency to pay the onboarding fee in
    * @minLength 3 @maxLength 3 @pattern ^[A-Z]{3}$
    */
-  currency: string;
+  currency?: string;
 
   /** URL Paystack redirects to after fee payment */
   callbackUrl?: string;
@@ -34,7 +19,8 @@ export interface SubmitDocumentDto {
 
 export interface VendorProfileResponseDto {
   id:                 string;
-  businessName:       string;
+  companyName:        string;
+  companyEstablishedDate: Date | null;
   registrationNumber: string;
   contactEmail:       string;
   country:            string;

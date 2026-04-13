@@ -2,6 +2,7 @@ import { AppDataSource } from '../../config/database';
 import { LessThan } from 'typeorm';
 import { User, UserRole } from '../../entities/User';
 import { RefreshToken } from '../../entities/RefreshToken';
+import { VendorProfile, VendorStatus } from '../../entities/VendorProfile';
 import { hashPassword, comparePassword } from '../../utils/hash';
 import {
   signAccessToken,
@@ -55,6 +56,7 @@ async function clearFailedAttempts(ip: string, email: string): Promise<void> {
 export class AuthService {
   private userRepo = AppDataSource.getRepository(User);
   private refreshTokenRepo = AppDataSource.getRepository(RefreshToken);
+  private vendorRepo = AppDataSource.getRepository(VendorProfile);
 
   async register(dto: RegisterDto): Promise<AuthResponseDto> {
     const email = dto.email.toLowerCase().trim();
@@ -67,14 +69,37 @@ export class AuthService {
     }
 
     const passwordHash = await hashPassword(dto.password);
+
+    let assignedRole = UserRole.CUSTOMER;
+    if (dto.role === 'vendor') {
+      assignedRole = UserRole.VENDOR;
+      if (!dto.companyName || dto.companyName.trim().length < 2) {
+        const error: any = new Error('Company name is required for vendors');
+        error.status = 400;
+        throw error;
+      }
+    }
+
     const user = this.userRepo.create({
       email,
       passwordHash,
       firstName: dto.firstName.trim(),
       lastName: dto.lastName.trim(),
-      role: UserRole.CUSTOMER,
+      role: assignedRole,
     });
     await this.userRepo.save(user);
+
+    if (assignedRole === UserRole.VENDOR) {
+      const vendorProfile = this.vendorRepo.create({
+        user,
+        companyName: dto.companyName!.trim(),
+        companyEstablishedDate: dto.companyEstablishedDate ? new Date(dto.companyEstablishedDate) : null,
+        contactEmail: email,
+        country: 'US', // default or extract from DTO in future
+        status: VendorStatus.PENDING_PAYMENT,
+      });
+      await this.vendorRepo.save(vendorProfile);
+    }
 
     const payload = { sub: user.id, email: user.email, role: user.role };
     const accessToken = signAccessToken(payload);

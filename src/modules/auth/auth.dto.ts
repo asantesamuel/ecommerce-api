@@ -31,6 +31,15 @@ export interface RegisterDto {
    * @pattern ^[a-zA-Z\s'-]+$
    */
   lastName: string;
+
+  /** Optional role override */
+  role?: 'customer' | 'vendor';
+
+  /** Required if role is vendor */
+  companyName?: string;
+
+  /** Required if role is vendor */
+  companyEstablishedDate?: Date;
 }
 
 export interface LoginDto {

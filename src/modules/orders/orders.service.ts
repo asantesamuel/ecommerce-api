@@ -259,6 +259,36 @@ export class OrdersService {
     };
   }
 
+  // ── GET /orders/vendor/my-orders ──────────────────────────────────────────
+  async findVendorOrders(
+    currentUser: JwtPayload,
+    page  = 1,
+    limit = 20
+  ): Promise<OrderListResponseDto> {
+    const skip = (Math.max(1, page) - 1) * Math.min(100, limit);
+
+    const qb = this.orderRepo
+      .createQueryBuilder('order')
+      .innerJoinAndSelect('order.items', 'items')
+      .innerJoinAndSelect('items.product', 'product')
+      .innerJoin('product.vendor', 'vendor')
+      .innerJoin('vendor.user', 'vendorUser')
+      .where('vendorUser.id = :userId', { userId: currentUser.sub })
+      .orderBy('order.placedAt', 'DESC')
+      .skip(skip)
+      .take(Math.min(100, limit));
+
+    const [data, total] = await qb.getManyAndCount();
+
+    return {
+      data:       data.map(order => this.format(order)),
+      total,
+      page:       Math.max(1, page),
+      limit:      Math.min(100, limit),
+      totalPages: Math.ceil(total / Math.min(100, limit)),
+    };
+  }
+
   // ── GET /orders/:id ────────────────────────────────────────────────────────
   async findOne(
     id:          string,
