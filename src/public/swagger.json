@@ -3630,6 +3630,53 @@
 				"parameters": []
 			}
 		},
+		"/admin/products/pending": {
+			"get": {
+				"operationId": "GetPendingProducts",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					},
+					"403": {
+						"description": "Admins only"
+					}
+				},
+				"description": "Get products pending review — admin only",
+				"tags": [
+					"Admin"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "page",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"in": "query",
+						"name": "limit",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
+			}
+		},
 		"/admin/products/{productId}/moderate": {
 			"post": {
 				"operationId": "ModerateProduct",

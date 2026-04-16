@@ -86,6 +86,19 @@ export class AdminController extends Controller {
   }
 
   /**
+   * Get products pending review — admin only
+   */
+  @Get('products/pending')
+  @Response(403, 'Admins only')
+  async getPendingProducts(
+    @Request() req: ExpressRequest,
+    @Query() page?: number,
+    @Query() limit?: number
+  ): Promise<any> {
+    return this.service.getPendingProducts(req.user!, page, limit);
+  }
+
+  /**
    * Approve, reject, or flag a product listing — admin only
    */
   @Post('products/{productId}/moderate')

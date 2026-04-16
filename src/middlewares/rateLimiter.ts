@@ -6,16 +6,20 @@ import Redis from 'ioredis';
 export const redisClient = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
 
 const isTest = process.env.NODE_ENV === 'test';
-const rateLimitStore = isTest
-  ? new MemoryStore()
-  : new RedisStore({
-      sendCommand: (...args: string[]) => {
-        if (typeof redisClient.call === 'function') {
-          return redisClient.call(args[0], ...args.slice(1)) as any;
-        }
-        return (redisClient as any)[args[0].toLowerCase()](...args.slice(1));
-      },
-    });
+
+const createRateLimitStore = (prefix: string) => {
+  return isTest
+    ? new MemoryStore()
+    : new RedisStore({
+        prefix,
+        sendCommand: (...args: string[]) => {
+          if (typeof redisClient.call === 'function') {
+            return redisClient.call(args[0], ...args.slice(1)) as any;
+          }
+          return (redisClient as any)[args[0].toLowerCase()](...args.slice(1));
+        },
+      });
+};
 
 // Applied globally to all /auth/* routes
 export const authRateLimiter = rateLimit({
@@ -23,7 +27,7 @@ export const authRateLimiter = rateLimit({
   max: isTest ? 5000 : 30,
   standardHeaders: true,
   legacyHeaders: false,
-  store: rateLimitStore,
+  store: createRateLimitStore('rl:auth:'),
   message: {
     message: 'Too many requests from this IP. Please try again in 15 minutes.',
   },
@@ -35,7 +39,7 @@ export const loginRateLimiter = rateLimit({
   max: isTest ? 5000 : 10,
   standardHeaders: true,
   legacyHeaders: false,
-  store: rateLimitStore,
+  store: createRateLimitStore('rl:login:'),
   message: {
     message: 'Too many login attempts from this IP. Please try again in 15 minutes.',
   },

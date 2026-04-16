@@ -292,6 +292,47 @@ export class AdminService {
     };
   }
 
+  // ── GET /admin/products/pending ──────────────────────────────────────────
+  async getPendingProducts(
+    currentUser: JwtPayload,
+    page  = 1,
+    limit = 20
+  ): Promise<any> {
+    this.guardAdmin(currentUser);
+
+    const skip = (Math.max(1, page) - 1) * Math.min(100, limit);
+
+    const [data, total] = await this.productRepo
+      .createQueryBuilder('product')
+      .leftJoinAndSelect('product.vendor', 'vendor')
+      .leftJoinAndSelect('product.category', 'category')
+      .where('product.approvalStatus = :status', { status: ProductApprovalStatus.PENDING })
+      .orderBy('product.createdAt', 'DESC')
+      .skip(skip)
+      .take(Math.min(100, limit))
+      .getManyAndCount();
+
+    return {
+      data: data.map(p => ({
+        id: p.id,
+        name: p.name,
+        slug: p.slug,
+        description: p.description,
+        price: Number(p.price),
+        stockQuantity: p.stockQuantity,
+        imageUrls: p.imageUrls,
+        approvalStatus: p.approvalStatus,
+        vendor: p.vendor ? { id: p.vendor.id, businessName: p.vendor.businessName } : null,
+        category: p.category ? { id: p.category.id, name: p.category.name } : null,
+        createdAt: p.createdAt,
+      })),
+      total,
+      page: Math.max(1, page),
+      limit: Math.min(100, limit),
+      totalPages: Math.ceil(total / Math.min(100, limit)),
+    };
+  }
+
   // ── POST /admin/products/:id/moderate ────────────────────────────────────
   async moderateProduct(
     productId:   string,
