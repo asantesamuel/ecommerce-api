@@ -537,7 +537,7 @@
 					},
 					"vendor": {
 						"properties": {
-							"businessName": {
+							"companyName": {
 								"type": "string"
 							},
 							"id": {
@@ -545,7 +545,7 @@
 							}
 						},
 						"required": [
-							"businessName",
+							"companyName",
 							"id"
 						],
 						"type": "object",

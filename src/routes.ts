@@ -219,7 +219,7 @@ const models: TsoaRoute.Models = {
             "approvalStatus": {"dataType":"string","required":true},
             "isActive": {"dataType":"boolean","required":true},
             "category": {"dataType":"union","subSchemas":[{"dataType":"nestedObjectLiteral","nestedProperties":{"name":{"dataType":"string","required":true},"id":{"dataType":"string","required":true}}},{"dataType":"enum","enums":[null]}],"required":true},
-            "vendor": {"dataType":"union","subSchemas":[{"dataType":"nestedObjectLiteral","nestedProperties":{"businessName":{"dataType":"string","required":true},"id":{"dataType":"string","required":true}}},{"dataType":"enum","enums":[null]}],"required":true},
+            "vendor": {"dataType":"union","subSchemas":[{"dataType":"nestedObjectLiteral","nestedProperties":{"companyName":{"dataType":"string","required":true},"id":{"dataType":"string","required":true}}},{"dataType":"enum","enums":[null]}],"required":true},
             "createdAt": {"dataType":"datetime","required":true},
             "updatedAt": {"dataType":"datetime","required":true},
         },

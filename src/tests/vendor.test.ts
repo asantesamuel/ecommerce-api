@@ -21,7 +21,7 @@ describe('Vendors API Integration Tests', () => {
       .post('/vendors/onboarding/paystack')
       .set('Authorization', `Bearer ${vendorToken}`)
       .send({
-        businessName: 'My Test Shop',
+        companyName: 'My Test Shop',
         description: 'A great shop'
       });
       

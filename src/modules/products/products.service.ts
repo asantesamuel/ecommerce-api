@@ -32,7 +32,7 @@ export class ProductsService {
         ? { id: p.category.id, name: p.category.name }
         : null,
       vendor: p.vendor
-        ? { id: p.vendor.id, businessName: p.vendor.businessName }
+        ? { id: p.vendor.id, companyName: p.vendor.companyName }
         : null,
       createdAt: p.createdAt,
       updatedAt: p.updatedAt,

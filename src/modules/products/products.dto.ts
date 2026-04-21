@@ -51,7 +51,7 @@ export interface ProductResponseDto {
   approvalStatus: string;
   isActive: boolean;
   category: { id: string; name: string } | null;
-  vendor: { id: string; businessName: string } | null;
+  vendor: { id: string; companyName: string } | null;
   createdAt: Date;
   updatedAt: Date;
 }

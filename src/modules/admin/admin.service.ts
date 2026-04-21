@@ -168,7 +168,7 @@ export class AdminService {
       productName:   p.name,
       slug:          p.slug,
       stockQuantity: p.stockQuantity,
-      vendorName:    p.vendor?.businessName || 'Unknown vendor',
+      vendorName:    p.vendor?.companyName || 'Unknown vendor',
     }));
 
     return {
@@ -322,7 +322,7 @@ export class AdminService {
         stockQuantity: p.stockQuantity,
         imageUrls: p.imageUrls,
         approvalStatus: p.approvalStatus,
-        vendor: p.vendor ? { id: p.vendor.id, businessName: p.vendor.businessName } : null,
+        vendor: p.vendor ? { id: p.vendor.id, companyName: p.vendor.companyName } : null,
         category: p.category ? { id: p.category.id, name: p.category.name } : null,
         createdAt: p.createdAt,
       })),
