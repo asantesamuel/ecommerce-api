@@ -15,6 +15,12 @@ export interface PresignUploadDto {
   contentType: string;
 
   /**
+   * File size in bytes
+   * @minimum 1
+   */
+  fileSize: number;
+
+  /**
    * Where the file will be used
    */
   folder: 'products' | 'documents' | 'avatars';

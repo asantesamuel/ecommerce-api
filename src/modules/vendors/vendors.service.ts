@@ -10,9 +10,9 @@ import {
 } from '../../config/paystack';
 import {
   getPresignedDownloadUrl,
-  buildCdnUrl,
 } from '../../config/s3';
 import { JwtPayload }                         from '../../utils/jwt';
+import { UploadsService }                     from '../uploads/uploads.service';
 import {
   VendorPayFeeDto,
   SubmitDocumentDto,
@@ -28,6 +28,7 @@ export class VendorsService {
   private docRepo     = AppDataSource.getRepository(VendorDocument);
   private feeRepo     = AppDataSource.getRepository(VendorOnboardingFee);
   private userRepo    = AppDataSource.getRepository(User);
+  private uploadsService = new UploadsService();
 
   private formatVendor(v: VendorProfile): VendorProfileResponseDto {
     return {
@@ -177,6 +178,12 @@ export class VendorsService {
       error.status = 400;
       throw error;
     }
+
+    await this.uploadsService.assertOwnedUploadedFile(
+      'documents',
+      dto.fileKey,
+      currentUser
+    );
 
     // Build a time-limited signed URL for the document
     const fileUrl = await getPresignedDownloadUrl(

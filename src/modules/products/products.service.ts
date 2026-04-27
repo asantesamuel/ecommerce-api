@@ -4,6 +4,7 @@ import { Product, ProductApprovalStatus } from '../../entities/Product';
 import { Category } from '../../entities/Category';
 import { VendorProfile } from '../../entities/VendorProfile';
 import { JwtPayload } from '../../utils/jwt';
+import { UploadsService } from '../uploads/uploads.service';
 import {
   CreateProductDto,
   UpdateProductDto,
@@ -16,6 +17,7 @@ export class ProductsService {
   private productRepo  = AppDataSource.getRepository(Product);
   private categoryRepo = AppDataSource.getRepository(Category);
   private vendorRepo   = AppDataSource.getRepository(VendorProfile);
+  private uploadsService = new UploadsService();
 
   private format(p: Product): ProductResponseDto {
     return {
@@ -37,6 +39,37 @@ export class ProductsService {
       createdAt: p.createdAt,
       updatedAt: p.updatedAt,
     };
+  }
+
+  private async validateProductImageUrls(
+    imageUrls: string[] | undefined,
+    currentUser: JwtPayload
+  ): Promise<string[]> {
+    if (!imageUrls || imageUrls.length === 0) {
+      return [];
+    }
+
+    const validatedUrls: string[] = [];
+
+    for (const imageUrl of imageUrls) {
+      const fileKey = this.uploadsService.extractFileKeyFromPublicUrl(imageUrl);
+
+      if (!fileKey) {
+        const error: any = new Error('Product image URLs must come from the managed upload flow');
+        error.status = 400;
+        throw error;
+      }
+
+      await this.uploadsService.assertOwnedUploadedFile(
+        'products',
+        fileKey,
+        currentUser
+      );
+
+      validatedUrls.push(this.uploadsService.getPublicUrlForKey(fileKey));
+    }
+
+    return validatedUrls;
   }
 
   async findAll(query: ProductQueryDto): Promise<ProductListResponseDto> {
@@ -189,7 +222,7 @@ export class ProductsService {
       description:   dto.description,
       price:         dto.price,
       stockQuantity: dto.stockQuantity,
-      imageUrls:     dto.imageUrls || [],
+      imageUrls:     await this.validateProductImageUrls(dto.imageUrls, vendorUser),
       vendor,
       approvalStatus: ProductApprovalStatus.PENDING,
     });
@@ -250,7 +283,9 @@ export class ProductsService {
     if (dto.description   !== undefined) product.description   = dto.description;
     if (dto.price         !== undefined) product.price         = dto.price;
     if (dto.stockQuantity !== undefined) product.stockQuantity = dto.stockQuantity;
-    if (dto.imageUrls     !== undefined) product.imageUrls     = dto.imageUrls;
+    if (dto.imageUrls     !== undefined) {
+      product.imageUrls = await this.validateProductImageUrls(dto.imageUrls, vendorUser);
+    }
     if (dto.isActive      !== undefined) product.isActive      = dto.isActive;
 
     if (dto.categoryId !== undefined) {

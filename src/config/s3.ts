@@ -3,6 +3,7 @@ import {
   PutObjectCommand,
   GetObjectCommand,
   DeleteObjectCommand,
+  HeadObjectCommand,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import * as dotenv from 'dotenv';
@@ -50,6 +51,14 @@ export async function deleteS3Object(
 ): Promise<void> {
   const command = new DeleteObjectCommand({ Bucket: bucket, Key: key });
   await s3Client.send(command);
+}
+
+export async function headS3Object(
+  bucket: string,
+  key: string
+) {
+  const command = new HeadObjectCommand({ Bucket: bucket, Key: key });
+  return s3Client.send(command);
 }
 
 // Build a CloudFront CDN URL for a public product image
