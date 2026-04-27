@@ -49,4 +49,25 @@ describe('Auth API Integration Tests', () => {
 
     expect(res.status).toBe(401);
   });
+
+  it('should refresh the access token without rotating the refresh token', async () => {
+    const loginRes = await request(app)
+      .post('/auth/login')
+      .send({
+        email: testUser.email,
+        password: testUser.password
+      });
+
+    expect(loginRes.status).toBe(200);
+
+    const refreshRes = await request(app)
+      .post('/auth/refresh')
+      .send({
+        refreshToken: loginRes.body.refreshToken
+      });
+
+    expect(refreshRes.status).toBe(200);
+    expect(refreshRes.body).toHaveProperty('accessToken');
+    expect(refreshRes.body.refreshToken).toBe(loginRes.body.refreshToken);
+  });
 });

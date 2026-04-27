@@ -205,6 +205,13 @@ export class AuthService {
       throw error;
     }
 
+    if (existingToken.expiresAt < new Date()) {
+      await this.refreshTokenRepo.remove(existingToken);
+      const error: any = new Error('Refresh token has expired. Please log in again.');
+      error.status = 401;
+      throw error;
+    }
+
     let payload: any;
     try {
       payload = verifyRefreshToken(dto.refreshToken);
@@ -231,10 +238,11 @@ export class AuthService {
       throw error;
     }
 
-    // Generate new tokens for rotation
+    // Generate a new access token while keeping the current refresh token stable.
+    // This avoids cross-tab and cross-app races where one successful refresh
+    // invalidates the token another tab is still trying to use.
     const newPayload = { sub: user.id, email: user.email, role: user.role };
     const newAccessToken = signAccessToken(newPayload);
-    const newRefreshToken = signRefreshToken(newPayload);
 
     // Cleanup expired tokens on refresh
     await this.refreshTokenRepo.delete({
@@ -242,20 +250,9 @@ export class AuthService {
       expiresAt: LessThan(new Date()),
     });
 
-    // Save new token and remove old token inside a transaction
-    await AppDataSource.transaction(async (manager) => {
-      const newTokenEntity = manager.create(RefreshToken, {
-        token: newRefreshToken,
-        user,
-        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-      });
-      await manager.save(newTokenEntity);
-      await manager.remove(existingToken);
-    });
-
     return {
       accessToken: newAccessToken,
-      refreshToken: newRefreshToken,
+      refreshToken: dto.refreshToken,
     };
   }
 
