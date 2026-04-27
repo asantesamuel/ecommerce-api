@@ -13,6 +13,7 @@ import {
   VendorOnboardingResponseDto,
   AdminVendorListResponseDto,
   ReviewVendorDto,
+  VendorReapplyResponseDto,
 } from './vendors.dto';
 
 @Route('vendors')
@@ -67,6 +68,21 @@ export class VendorsController extends Controller {
     @Request() req: ExpressRequest
   ): Promise<VendorDocumentResponseDto[]> {
     return this.service.getMyDocuments(req.user!);
+  }
+
+  /**
+   * Reopen a rejected vendor application.
+   * If the previous paid onboarding window is still within 3 months,
+   * the vendor can continue without paying again.
+   * Otherwise they are moved back to pending_payment.
+   */
+  @Post('reapply')
+  @Response(400, 'Only rejected vendor applications can be reopened')
+  @Response(404, 'Vendor profile not found')
+  async reapply(
+    @Request() req: ExpressRequest
+  ): Promise<VendorReapplyResponseDto> {
+    return this.service.reapply(req.user!);
   }
 
   /**

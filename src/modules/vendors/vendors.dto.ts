@@ -26,6 +26,9 @@ export interface VendorProfileResponseDto {
   country:            string;
   status:             string;
   rejectionReason:    string | null;
+  canReapplyWithoutFee?: boolean;
+  requiresNewFee?: boolean;
+  reapplyDeadline?: Date | null;
   approvedAt:         Date   | null;
   createdAt:          Date;
 }
@@ -60,4 +63,9 @@ export interface AdminVendorListResponseDto {
 export interface ReviewVendorDto {
   /** @minLength 10 @maxLength 500 */
   reason?: string; // required when rejecting
+}
+
+export interface VendorReapplyResponseDto {
+  vendor: VendorProfileResponseDto;
+  message: string;
 }

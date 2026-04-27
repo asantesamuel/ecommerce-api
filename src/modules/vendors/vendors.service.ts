@@ -21,6 +21,7 @@ import {
   VendorOnboardingResponseDto,
   AdminVendorListResponseDto,
   ReviewVendorDto,
+  VendorReapplyResponseDto,
 } from './vendors.dto';
 
 export class VendorsService {
@@ -30,7 +31,46 @@ export class VendorsService {
   private userRepo    = AppDataSource.getRepository(User);
   private uploadsService = new UploadsService();
 
-  private formatVendor(v: VendorProfile): VendorProfileResponseDto {
+  private getReapplyDeadline(feePaidAt?: Date | null): Date | null {
+    if (!feePaidAt) {
+      return null;
+    }
+
+    const deadline = new Date(feePaidAt);
+    deadline.setMonth(deadline.getMonth() + 3);
+    return deadline;
+  }
+
+  private async getReapplyState(vendorId: string): Promise<{
+    canReapplyWithoutFee: boolean;
+    requiresNewFee: boolean;
+    reapplyDeadline: Date | null;
+  }> {
+    const fee = await this.feeRepo.findOne({
+      where: { vendor: { id: vendorId } },
+    });
+
+    const reapplyDeadline = this.getReapplyDeadline(fee?.paidAt || null);
+    const canReapplyWithoutFee = Boolean(
+      reapplyDeadline && reapplyDeadline.getTime() >= Date.now()
+    );
+
+    return {
+      canReapplyWithoutFee,
+      requiresNewFee: !canReapplyWithoutFee,
+      reapplyDeadline,
+    };
+  }
+
+  private async formatVendor(v: VendorProfile): Promise<VendorProfileResponseDto> {
+    const reapplyState = v.status === VendorStatus.REJECTED
+      ? await this.getReapplyState(v.id)
+      : {
+          canReapplyWithoutFee: false,
+          requiresNewFee: false,
+          reapplyDeadline: null,
+        };
+
     return {
       id:                 v.id,
       companyName:        v.companyName,
@@ -40,6 +80,9 @@ export class VendorsService {
       country:            v.country,
       status:             v.status,
       rejectionReason:    v.rejectionReason || null,
+      canReapplyWithoutFee: reapplyState.canReapplyWithoutFee,
+      requiresNewFee: reapplyState.requiresNewFee,
+      reapplyDeadline: reapplyState.reapplyDeadline,
       approvedAt:         v.approvedAt      || null,
       createdAt:          v.createdAt,
     };
@@ -106,17 +149,29 @@ export class VendorsService {
     }
 
     // Save fee record
-    const fee = this.feeRepo.create({
-      vendor,
-      amount:                feeAmount,
-      currency:              dto.currency || 'GHS',
-      paystackReference:     reference,
-      status:                FeeStatus.PENDING,
+    const existingFee = await this.feeRepo.findOne({
+      where: { vendor: { id: vendor.id } },
     });
+
+    const fee = existingFee
+      ? Object.assign(existingFee, {
+          amount: feeAmount,
+          currency: dto.currency || 'GHS',
+          paystackReference: reference,
+          status: FeeStatus.PENDING,
+          paidAt: null,
+        })
+      : this.feeRepo.create({
+          vendor,
+          amount:                feeAmount,
+          currency:              dto.currency || 'GHS',
+          paystackReference:     reference,
+          status:                FeeStatus.PENDING,
+        });
     await this.feeRepo.save(fee);
 
     return {
-      vendor: this.formatVendor(vendor),
+      vendor: await this.formatVendor(vendor),
       fee: {
         amount:     feeAmount,
         currency:   dto.currency || 'GHS',
@@ -276,7 +331,7 @@ export class VendorsService {
     });
 
     return {
-      data:       data.map(this.formatVendor),
+      data:       await Promise.all(data.map(vendor => this.formatVendor(vendor))),
       total,
       page:       Math.max(1, page),
       limit:      Math.min(100, limit),
@@ -423,5 +478,47 @@ export class VendorsService {
 
     await this.vendorRepo.save(vendor);
     return this.formatVendor(vendor);
+  }
+
+  async reapply(
+    currentUser: JwtPayload
+  ): Promise<VendorReapplyResponseDto> {
+    const vendor = await this.vendorRepo.findOne({
+      where: { user: { id: currentUser.sub } },
+    });
+    if (!vendor) {
+      const error: any = new Error('Vendor profile not found');
+      error.status = 404;
+      throw error;
+    }
+
+    if (vendor.status !== VendorStatus.REJECTED) {
+      const error: any = new Error('Only rejected vendor applications can be reopened');
+      error.status = 400;
+      throw error;
+    }
+
+    const reapplyState = await this.getReapplyState(vendor.id);
+
+    vendor.rejectionReason = null!;
+    vendor.reviewedBy = null;
+
+    if (reapplyState.canReapplyWithoutFee) {
+      vendor.status = VendorStatus.PENDING_REVIEW;
+      await this.vendorRepo.save(vendor);
+
+      return {
+        vendor: await this.formatVendor(vendor),
+        message: 'Your application has been reopened. You can continue with document submission and review.'
+      };
+    }
+
+    vendor.status = VendorStatus.PENDING_PAYMENT;
+    await this.vendorRepo.save(vendor);
+
+    return {
+      vendor: await this.formatVendor(vendor),
+      message: 'Your previous onboarding payment window expired. Please pay the vendor onboarding fee again to continue.'
+    };
   }
 }

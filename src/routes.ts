@@ -46,6 +46,9 @@ const models: TsoaRoute.Models = {
             "country": {"dataType":"string","required":true},
             "status": {"dataType":"string","required":true},
             "rejectionReason": {"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},
+            "canReapplyWithoutFee": {"dataType":"boolean"},
+            "requiresNewFee": {"dataType":"boolean"},
+            "reapplyDeadline": {"dataType":"union","subSchemas":[{"dataType":"datetime"},{"dataType":"enum","enums":[null]}]},
             "approvedAt": {"dataType":"union","subSchemas":[{"dataType":"datetime"},{"dataType":"enum","enums":[null]}],"required":true},
             "createdAt": {"dataType":"datetime","required":true},
         },
@@ -87,6 +90,15 @@ const models: TsoaRoute.Models = {
         "properties": {
             "fileKey": {"dataType":"string","required":true},
             "documentType": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["business_registration"]},{"dataType":"enum","enums":["tax_certificate"]},{"dataType":"enum","enums":["id_proof"]},{"dataType":"enum","enums":["other"]}],"required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "VendorReapplyResponseDto": {
+        "dataType": "refObject",
+        "properties": {
+            "vendor": {"ref":"VendorProfileResponseDto","required":true},
+            "message": {"dataType":"string","required":true},
         },
         "additionalProperties": false,
     },
@@ -730,6 +742,37 @@ export function RegisterRoutes(app: Router) {
 
               await templateService.apiHandler({
                 methodName: 'getMyDocuments',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsVendorsController_reapply: Record<string, TsoaRoute.ParameterSchema> = {
+                req: {"in":"request","name":"req","required":true,"dataType":"object"},
+        };
+        app.post('/vendors/reapply',
+            authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(VendorsController)),
+            ...(fetchMiddlewares<RequestHandler>(VendorsController.prototype.reapply)),
+
+            async function VendorsController_reapply(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsVendorsController_reapply, request, response });
+
+                const controller = new VendorsController();
+
+              await templateService.apiHandler({
+                methodName: 'reapply',
                 controller,
                 response,
                 next,

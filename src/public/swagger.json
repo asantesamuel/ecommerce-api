@@ -36,6 +36,17 @@
 						"type": "string",
 						"nullable": true
 					},
+					"canReapplyWithoutFee": {
+						"type": "boolean"
+					},
+					"requiresNewFee": {
+						"type": "boolean"
+					},
+					"reapplyDeadline": {
+						"type": "string",
+						"format": "date-time",
+						"nullable": true
+					},
 					"approvedAt": {
 						"type": "string",
 						"format": "date-time",
@@ -166,6 +177,22 @@
 				"required": [
 					"fileKey",
 					"documentType"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"VendorReapplyResponseDto": {
+				"properties": {
+					"vendor": {
+						"$ref": "#/components/schemas/VendorProfileResponseDto"
+					},
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"vendor",
+					"message"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -1819,6 +1846,39 @@
 					}
 				},
 				"description": "Get all documents submitted by the authenticated vendor",
+				"tags": [
+					"Vendors"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": []
+			}
+		},
+		"/vendors/reapply": {
+			"post": {
+				"operationId": "Reapply",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/VendorReapplyResponseDto"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Only rejected vendor applications can be reopened"
+					},
+					"404": {
+						"description": "Vendor profile not found"
+					}
+				},
+				"description": "Reopen a rejected vendor application.\nIf the previous paid onboarding window is still within 3 months,\nthe vendor can continue without paying again.\nOtherwise they are moved back to pending_payment.",
 				"tags": [
 					"Vendors"
 				],
