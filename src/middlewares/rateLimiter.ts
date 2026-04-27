@@ -6,6 +6,7 @@ import Redis from 'ioredis';
 export const redisClient = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
 
 const isTest = process.env.NODE_ENV === 'test';
+const isDev = process.env.NODE_ENV === 'development';
 
 const createRateLimitStore = (prefix: string) => {
   return isTest
@@ -24,7 +25,7 @@ const createRateLimitStore = (prefix: string) => {
 // Applied globally to all /auth/* routes
 export const authRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, 
-  max: isTest ? 5000 : 30,
+  max: (isTest || isDev) ? 5000 : 30,
   standardHeaders: true,
   legacyHeaders: false,
   store: createRateLimitStore('rl:auth:'),
@@ -36,7 +37,7 @@ export const authRateLimiter = rateLimit({
 // Stricter limiter specifically for login
 export const loginRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: isTest ? 5000 : 10,
+  max: (isTest || isDev) ? 5000 : 10,
   standardHeaders: true,
   legacyHeaders: false,
   store: createRateLimitStore('rl:login:'),
