@@ -818,6 +818,7 @@ export function RegisterRoutes(app: Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         const argsVendorsController_getVendorDocuments: Record<string, TsoaRoute.ParameterSchema> = {
+                req: {"in":"request","name":"req","required":true,"dataType":"object"},
                 vendorId: {"in":"path","name":"vendorId","required":true,"dataType":"string"},
         };
         app.get('/vendors/:vendorId/documents',

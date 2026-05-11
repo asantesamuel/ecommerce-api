@@ -1,5 +1,4 @@
 import request from 'supertest';
-import { Express } from 'express';
 import { createApp } from '../app';
 
 export const app = createApp();
@@ -39,7 +38,7 @@ export async function createTestUser(email = 'test@example.com', password = 'Pas
 }
 
 export async function createAdminUser(email = 'admin@example.com', password = 'AdminPassword123!') {
-  const data = await createTestUser(email, password);
+  await createTestUser(email, password);
   
   // Directly update the role properly via TypeORM ENUM
   await AppDataSource.getRepository(User).update(

@@ -1,4 +1,3 @@
-// TODO: implement categories service logic
 import { AppDataSource } from '../../config/database';
 import { Category } from '../../entities/Category';
 import { CreateCategoryDto, UpdateCategoryDto, CategoryResponseDto } from './categories.dto';

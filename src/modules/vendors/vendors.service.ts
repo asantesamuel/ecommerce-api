@@ -31,6 +31,14 @@ export class VendorsService {
   private userRepo    = AppDataSource.getRepository(User);
   private uploadsService = new UploadsService();
 
+  private guardAdmin(currentUser: JwtPayload): void {
+    if (currentUser.role !== UserRole.ADMIN) {
+      const error: any = new Error('Admin access required');
+      error.status = 403;
+      throw error;
+    }
+  }
+
   private getReapplyDeadline(feePaidAt?: Date | null): Date | null {
     if (!feePaidAt) {
       return null;
@@ -185,7 +193,7 @@ export class VendorsService {
   // ── Called by webhook after fee payment confirmed ─────────────────────────
   async confirmFeePayment(
     reference:           string,
-    paystackTransactionId: string
+    _paystackTransactionId: string
   ): Promise<void> {
     const fee = await this.feeRepo.findOne({
       where:     { paystackReference: reference },
@@ -318,9 +326,12 @@ export class VendorsService {
 
   // ── Admin: GET /vendors/pending ───────────────────────────────────────────
   async getPendingVendors(
+    currentUser: JwtPayload,
     page  = 1,
     limit = 20
   ): Promise<AdminVendorListResponseDto> {
+    this.guardAdmin(currentUser);
+
     const skip = (Math.max(1, page) - 1) * Math.min(100, limit);
 
     const [data, total] = await this.vendorRepo.findAndCount({
@@ -341,8 +352,11 @@ export class VendorsService {
 
   // ── Admin: GET /vendors/:id/documents ─────────────────────────────────────
   async getVendorDocuments(
+    currentUser: JwtPayload,
     vendorId: string
   ): Promise<VendorDocumentResponseDto[]> {
+    this.guardAdmin(currentUser);
+
     const docs = await this.docRepo.find({
       where: { vendor: { id: vendorId } },
       order: { uploadedAt: 'DESC' },
@@ -368,8 +382,11 @@ export class VendorsService {
     vendorId:    string,
     currentUser: JwtPayload
   ): Promise<VendorProfileResponseDto> {
+    this.guardAdmin(currentUser);
+
     const vendor = await this.vendorRepo.findOne({
       where: { id: vendorId },
+      relations: ['user'],
     });
     if (!vendor) {
       const error: any = new Error('Vendor not found');
@@ -408,6 +425,8 @@ export class VendorsService {
     dto:         ReviewVendorDto,
     currentUser: JwtPayload
   ): Promise<VendorProfileResponseDto> {
+    this.guardAdmin(currentUser);
+
     if (!dto.reason || dto.reason.trim().length < 10) {
       const error: any = new Error(
         'A rejection reason of at least 10 characters is required'
@@ -450,6 +469,8 @@ export class VendorsService {
     dto:         ReviewVendorDto,
     currentUser: JwtPayload
   ): Promise<VendorProfileResponseDto> {
+    this.guardAdmin(currentUser);
+
     const vendor = await this.vendorRepo.findOne({
       where:     { id: vendorId },
       relations: ['user'],

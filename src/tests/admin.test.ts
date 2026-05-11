@@ -41,7 +41,6 @@ describe('Admin API Integration Tests', () => {
       .set('Authorization', `Bearer ${adminToken}`)
       .send({ isActive: false });
       
-    console.log('[DEBUG] STATUS res.body:', res.body);
     expect(res.status).toBe(200);
     expect(res.body.isActive).toBe(false);
   });

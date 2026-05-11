@@ -15,7 +15,7 @@ export function errorHandler(
   err:  any,
   req:  Request,
   res:  Response,
-  next: NextFunction
+  _next: NextFunction
 ): void {
   const timestamp = new Date().toISOString();
   const path      = req.path;

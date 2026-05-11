@@ -1,7 +1,7 @@
 import {
   Controller, Route, Tags, Get, Post,
   Path, Body, Query, Security, Request,
-  Response, SuccessResponse,
+  Response,
 } from 'tsoa';
 import { Request as ExpressRequest } from 'express';
 import { AdminService }              from './admin.service';

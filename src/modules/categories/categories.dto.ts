@@ -1,5 +1,4 @@
-// TODO: define request/response DTOs for categories
-// Use class-validator decorators for tsoa validation
+// Category request/response DTOs consumed by tsoa.
 
 export interface CreateCategoryDto {
   /** @minLength 2 @maxLength 100 */

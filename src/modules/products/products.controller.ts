@@ -10,7 +10,6 @@ import {
   UpdateProductDto,
   ProductResponseDto,
   ProductListResponseDto,
-  ProductQueryDto,
 } from './products.dto';
 
 @Route('products')

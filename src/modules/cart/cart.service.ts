@@ -1,4 +1,3 @@
-// TODO: implement cart service logic
 import { AppDataSource } from '../../config/database';
 import { Cart } from '../../entities/Cart';
 import { CartItem } from '../../entities/CartItem';

@@ -1,5 +1,4 @@
-// TODO: define request/response DTOs for uploads
-// Use class-validator decorators for tsoa validation
+// Upload request/response DTOs consumed by tsoa.
 
 export interface PresignUploadDto {
   /**
@@ -27,17 +26,17 @@ export interface PresignUploadDto {
 }
 
 export interface PresignUploadResponseDto {
-  uploadUrl:  string; // PUT this URL directly from the browser
-  fileKey:    string; // save this — used to confirm the upload
-  expiresIn:  number; // seconds until the URL expires
+  uploadUrl: string; // PUT this URL directly from the browser
+  fileKey: string; // save this; used to confirm the upload
+  expiresIn: number; // seconds until the URL expires
 }
 
 export interface ConfirmUploadDto {
   fileKey: string;
-  folder:  'products' | 'documents' | 'avatars';
+  folder: 'products' | 'documents' | 'avatars';
 }
 
 export interface ConfirmUploadResponseDto {
   fileKey: string;
-  url:     string; // final CDN or access URL
+  url: string; // final CDN or access URL
 }

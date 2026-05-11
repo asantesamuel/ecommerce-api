@@ -1,4 +1,3 @@
-// TODO: implement products service logic
 import { AppDataSource } from '../../config/database';
 import { Product, ProductApprovalStatus } from '../../entities/Product';
 import { Category } from '../../entities/Category';

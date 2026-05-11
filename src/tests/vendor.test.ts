@@ -1,41 +1,56 @@
 import request from 'supertest';
 import { app } from './testHelpers';
-import { createTestUser } from './testHelpers';
+import { createAdminUser, createTestUser } from './testHelpers';
 
 describe('Vendors API Integration Tests', () => {
   let vendorToken: string;
   let customerToken: string;
+  let adminToken: string;
 
   beforeAll(async () => {
-    const vendorUser = await createTestUser('vendor1@test.com', 'Pass123!');
-    vendorToken = vendorUser.token;
+    const vendorRegister = await request(app)
+      .post('/auth/register')
+      .send({
+        email: 'vendor1@test.com',
+        password: 'Pass123!',
+        firstName: 'Vendor',
+        lastName: 'User',
+        role: 'vendor',
+        companyName: 'My Test Shop'
+      });
+    vendorToken = vendorRegister.body.accessToken;
 
     const customerUser = await createTestUser('customer1@test.com', 'Pass123!');
     customerToken = customerUser.token;
+
+    const adminUser = await createAdminUser('vendor_admin@test.com', 'Pass123!');
+    adminToken = adminUser.token;
   });
 
-  it('should initialize vendor onboarding', async () => {
-    // Requires a mock or will hit Paystack HTTP depending on integration
-    // But we test the initial onboarding route
+  it('should return the authenticated vendor profile', async () => {
     const res = await request(app)
-      .post('/vendors/onboarding/paystack')
-      .set('Authorization', `Bearer ${vendorToken}`)
-      .send({
-        companyName: 'My Test Shop',
-        description: 'A great shop'
-      });
-      
-    // Assuming 200 or 201 - might return a paystack auth URL or create the vendor
-    // If it requires mocked paystack, we just test it doesn't 500 or 401
-    expect(res.status).not.toBe(401);
-    expect(res.status).not.toBe(500);
+      .get('/vendors/me')
+      .set('Authorization', `Bearer ${vendorToken}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.companyName).toBe('My Test Shop');
+    expect(res.body.status).toBe('pending_payment');
   });
 
-  it('should reject unauthorized access to vendor dashboard', async () => {
+  it('should prevent non-admins from viewing pending vendor applications', async () => {
     const res = await request(app)
-      .get('/vendors/me/dashboard')
+      .get('/vendors/admin/pending')
       .set('Authorization', `Bearer ${customerToken}`);
-      
+
     expect(res.status).toBe(403);
+  });
+
+  it('should allow admins to list pending vendor applications', async () => {
+    const res = await request(app)
+      .get('/vendors/admin/pending')
+      .set('Authorization', `Bearer ${adminToken}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('data');
   });
 });

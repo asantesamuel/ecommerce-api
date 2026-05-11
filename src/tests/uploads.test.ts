@@ -23,26 +23,26 @@ describe('Uploads API Integration Tests', () => {
       .post('/uploads/presign')
       .set('Authorization', `Bearer ${userToken}`)
       .send({
-        fileName: 'test-image.jpg',
-        fileType: 'image/jpeg',
-        bucketType: 'products'
+        filename: 'test-image.jpg',
+        contentType: 'image/jpeg',
+        fileSize: 1024,
+        folder: 'products'
       });
-      
-    // Needs to mock AWS S3 or we expect it to fail gracefully if actual keys are wrong
-    expect([200, 500]).toContain(res.status); // 500 if AWS credentials invalid in .env during test
-    if (res.status === 200) {
-      expect(res.body).toHaveProperty('uploadUrl');
-      expect(res.body).toHaveProperty('fileUrl');
-    }
+
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('uploadUrl');
+    expect(res.body).toHaveProperty('fileKey');
+    expect(res.body).toHaveProperty('expiresIn');
   });
 
   it('should reject unauthorized upload requests', async () => {
     const res = await request(app)
       .post('/uploads/presign')
       .send({
-        fileName: 'test-image.jpg',
-        fileType: 'image/jpeg',
-        bucketType: 'products'
+        filename: 'test-image.jpg',
+        contentType: 'image/jpeg',
+        fileSize: 1024,
+        folder: 'products'
       });
       
     expect(res.status).toBe(401);

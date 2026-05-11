@@ -95,7 +95,7 @@ export class VendorsController extends Controller {
     @Query() page?:  number,
     @Query() limit?: number
   ): Promise<AdminVendorListResponseDto> {
-    return this.service.getPendingVendors(page, limit);
+    return this.service.getPendingVendors(req.user!, page, limit);
   }
 
   /**
@@ -104,9 +104,10 @@ export class VendorsController extends Controller {
   @Get('{vendorId}/documents')
   @Response(403, 'Admins only')
   async getVendorDocuments(
+    @Request() req: ExpressRequest,
     @Path() vendorId: string
   ): Promise<VendorDocumentResponseDto[]> {
-    return this.service.getVendorDocuments(vendorId);
+    return this.service.getVendorDocuments(req.user!, vendorId);
   }
 
   /**

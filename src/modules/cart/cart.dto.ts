@@ -1,5 +1,4 @@
-// TODO: define request/response DTOs for cart
-// Use class-validator decorators for tsoa validation
+// Cart request/response DTOs consumed by tsoa.
 
 export interface AddCartItemDto {
   productId: string;

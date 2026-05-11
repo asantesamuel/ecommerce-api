@@ -1,5 +1,4 @@
-// TODO: define request/response DTOs for products
-// Use class-validator decorators for tsoa validation
+// Product request/response DTOs consumed by tsoa.
 
 export interface CreateProductDto {
   /** @minLength 2 @maxLength 200 */
